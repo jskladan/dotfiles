@@ -1,0 +1,19 @@
+[user]
+    name = Josef Skladanka
+    email = jskladan@redhat.com
+[color]
+    ui = true
+
+[alias]
+    st = status
+    d = diff
+    ci = commit -v
+    cia = commit -v -a
+    co = checkout
+    b = branch -vv
+    meld = !/home/jskladan/bin/git-meld.pl
+[sendemail]
+    smtpserver = smtp.corp.redhat.com
+
+[core]
+    include = /home/jskladan/.git_oauth

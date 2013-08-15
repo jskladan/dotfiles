@@ -1,0 +1,118 @@
+" ========================================
+" Pathogen
+" ========================================
+
+" Load pathogen with docs for all plugins
+execute pathogen#infect()
+call pathogen#helptags()
+
+" ========================================
+" Shortcuts
+" ========================================
+
+set nocompatible
+let mapleader=","
+
+" setup folding, map folding to F9 in all modes
+inoremap <F9> <C-O>za
+nnoremap <F9> za
+onoremap <F9> <C-C>za
+vnoremap <F9> zf
+
+" tasklist plugin
+map <leader>td <Plug>TaskList
+
+" open NerdTree
+map <leader>n :NERDTreeToggle<CR>
+
+" Disable highlight when <leader>/ is pressed
+map <silent> <leader>/ :noh<cr>
+
+""" Managing tabs <C-t> is Ctrl+t
+nnoremap <C-t>     :tabnew<CR>
+nnoremap <C-Left>  :tabprevious<CR>
+nnoremap <C-Right> :tabnext<CR>
+" <C-O> makex next cmd happen as if in command mode
+inoremap <C-t>     <C-O>:tabnew<CR>
+inoremap <C-Left>  <C-O>:tabprevious<CR>
+inoremap <C-Right> <C-O>:tabnext<CR>
+
+" ========================================
+" General
+" ========================================
+
+" Sets how many lines of history VIM has to remember
+set history=700
+
+" Enable filetype plugins
+filetype plugin on
+filetype indent on
+
+set noautoread " Don't automatically re-read changed files.
+set modeline " Allow vim options to be embedded in files;
+set modelines=5 " they must be within the first or last 5 lines.
+set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
+
+
+" ========================================
+" VIM user interface
+" ========================================
+
+" Enable full mouse support
+set mouse=a 
+
+" Set color scheme
+colo elflord
+set background=dark
+
+" tab-completion for commands will show options
+set wildmenu
+set wildmode=full
+set wildignore+=*.o,.git,*.pyc,*.pyo  " ignore these when completing
+
+" set fileencoding=utf-8 " save files in utf-8
+set fileencodings=utf-8,cp1251,default,latin1 " try encodings in this order while reading file
+
+""" Insert completion
+" don't select first item, follow typing in autocomplete
+set completeopt=menuone,longest,preview
+set pumheight=10 " Keep a small completion window
+
+""" Moving Around/Editing
+set ruler " show the cursor position all the time
+set nostartofline " Avoid moving cursor to BOL when jumping around
+set scrolloff=3 " Keep 3 context lines above and below the cursor
+set showmatch " Briefly jump to a paren once it's balanced
+set nowrap " don't wrap text
+
+set tabstop=4 " <tab> inserts 4 spaces.
+set shiftwidth=4 " use the < and > keys in visual mode to block indent/unindent
+set softtabstop=4 " <BS> over an autoindent deletes both spaces.
+set expandtab " Use spaces, not tabs, for autoindent/tab key.
+set smarttab " Handle tabs more intelligently
+set shiftround " rounds indent to a multiple of shiftwidth
+
+" displays tabs with :set list & displays when a line runs off-screen
+set listchars=tab:>-,trail:-,precedes:<,extends:>
+set list
+
+set autoindent " always set autoindenting on
+set smartindent " use smart indent if there is no indent file
+
+set foldmethod=indent " allow us to fold on indents
+set foldlevel=99 " don't fold by default
+
+""" Searching and Patterns
+set ignorecase " Default to using case insensitive searches,
+set smartcase " unless uppercase letters are used in the regex.
+set hlsearch " Highlight searches by default.
+
+" ========================================
+" Filetype Specific Changes
+" ========================================
+
+""" Python
+au FileType python set omnifunc=pythoncomplete#Complete
+
+" remove trailing spaces  on save
+autocmd BufWritePre *.py :%s/\s\+$//e
