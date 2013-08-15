@@ -59,7 +59,7 @@ set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
 " ========================================
 
 " Enable full mouse support
-set mouse=a 
+" set mouse=a 
 
 " Set color scheme
 colo elflord
