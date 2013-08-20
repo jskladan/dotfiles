@@ -20,7 +20,7 @@ onoremap <F9> <C-C>za
 vnoremap <F9> zf
 
 " tasklist plugin
-map <leader>task <Plug>TaskList
+map <leader>todo <Plug>TaskList
 
 " open NerdTree
 map <leader>n :NERDTreeToggle<CR>
