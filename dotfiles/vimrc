@@ -32,10 +32,10 @@ map <silent> <leader>/ :noh<cr>
 nnoremap <C-t>     :tabnew<CR>
 nnoremap <C-Left>  :tabprevious<CR>
 nnoremap <C-Right> :tabnext<CR>
-" <C-O> makex next cmd happen as if in command mode
-inoremap <C-t>     <C-O>:tabnew<CR>
-inoremap <C-Left>  <C-O>:tabprevious<CR>
-inoremap <C-Right> <C-O>:tabnext<CR>
+" <C-O> would make next cmd happen as if in command mode
+inoremap <C-t>     <C-C>:tabnew<CR>
+inoremap <C-Left>  <C-C>:tabprevious<CR>
+inoremap <C-Right> <C-C>:tabnext<CR>
 
 " ========================================
 " General
