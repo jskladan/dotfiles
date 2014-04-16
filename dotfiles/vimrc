@@ -45,6 +45,7 @@ inoremap <C-Right> <C-C>:tabnext<CR>
 set history=700
 
 " Enable filetype plugins
+filetype on
 filetype plugin on
 filetype indent on
 
@@ -118,9 +119,10 @@ set hlsearch " Highlight searches by default.
 """ Python
 au FileType python set omnifunc=pythoncomplete#Complete
 au FileType python match OverLength /\%81v.\+/
-
 " remove trailing spaces  on save
 autocmd BufWritePre *.py :%s/\s\+$//e
 
 """ HTML
-au FileType html set tabstop=2 shiftwidth=2 softtabstop=2
+"au BufRead,BufNewFile *.html set filetype=html
+autocmd FileType html setlocal shiftwidth=2 tabstop=2 softtabstop=2
+autocmd FileType htmldjango setlocal shiftwidth=2 tabstop=2 softtabstop=2
