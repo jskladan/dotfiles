@@ -64,6 +64,9 @@ set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
 " Set color scheme
 colo elflord
 set background=dark
+" prepare highlight color for over-length symbols
+" http://vim.wikia.com/wiki/Xterm256_color_names_for_console_Vim?file=Xterm-color-table.png
+highlight OverLength ctermbg=52
 
 " tab-completion for commands will show options
 set wildmenu
@@ -102,6 +105,7 @@ set smartindent " use smart indent if there is no indent file
 set foldmethod=indent " allow us to fold on indents
 set foldlevel=99 " don't fold by default
 
+
 """ Searching and Patterns
 set ignorecase " Default to using case insensitive searches,
 set smartcase " unless uppercase letters are used in the regex.
@@ -113,6 +117,10 @@ set hlsearch " Highlight searches by default.
 
 """ Python
 au FileType python set omnifunc=pythoncomplete#Complete
+au FileType python match OverLength /\%81v.\+/
 
 " remove trailing spaces  on save
 autocmd BufWritePre *.py :%s/\s\+$//e
+
+""" HTML
+au FileType html set tabstop=2 shiftwidth=2 softtabstop=2

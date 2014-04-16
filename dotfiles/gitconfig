@@ -12,6 +12,7 @@
     co = checkout
     b = branch -vv
     meld = !/home/jskladan/bin/git-meld.pl
+    squash = rebase -i
 [sendemail]
     smtpserver = smtp.corp.redhat.com
 
