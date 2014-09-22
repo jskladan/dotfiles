@@ -18,3 +18,5 @@
 
 [core]
     include = /home/jskladan/.git_oauth
+[push]
+	default = simple

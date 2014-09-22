@@ -41,6 +41,9 @@ inoremap <C-Right> <C-C>:tabnext<CR>
 " General
 " ========================================
 
+"
+set autochdir
+
 " Sets how many lines of history VIM has to remember
 set history=700
 
@@ -101,7 +104,7 @@ set listchars=tab:>-,trail:-,precedes:<,extends:>
 set list
 
 set autoindent " always set autoindenting on
-set smartindent " use smart indent if there is no indent file
+"set smartindent " use smart indent if there is no indent file
 
 set foldmethod=indent " allow us to fold on indents
 set foldlevel=99 " don't fold by default
