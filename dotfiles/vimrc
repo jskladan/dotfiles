@@ -19,6 +19,12 @@ nnoremap <F9> za
 onoremap <F9> <C-C>za
 vnoremap <F9> zf
 
+" setup folding, map folding to zz in all modes
+inoremap zz <C-O>za
+nnoremap zz za
+onoremap zz <C-C>za
+vnoremap zz zf
+
 " tasklist plugin
 map <leader>todo <Plug>TaskList
 
