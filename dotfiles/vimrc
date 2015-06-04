@@ -34,14 +34,17 @@ map <leader>n :NERDTreeToggle<CR>
 " Disable highlight when <leader>/ is pressed
 map <silent> <leader>/ :noh<cr>
 
-""" Managing tabs <C-t> is Ctrl+t
+" Managing tabs <C-t> is Ctrl+t
 nnoremap <C-t>     :tabnew<CR>
 nnoremap <C-Left>  :tabprevious<CR>
 nnoremap <C-Right> :tabnext<CR>
-" <C-O> would make next cmd happen as if in command mode
+"" <C-O> would make next cmd happen as if in command mode
 inoremap <C-t>     <C-C>:tabnew<CR>
 inoremap <C-Left>  <C-C>:tabprevious<CR>
 inoremap <C-Right> <C-C>:tabnext<CR>
+
+" Disable replace mode
+imap <Insert> <Nop>
 
 " ========================================
 " General
