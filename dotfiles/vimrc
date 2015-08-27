@@ -130,7 +130,7 @@ set hlsearch " Highlight searches by default.
 
 """ Python
 au FileType python set omnifunc=pythoncomplete#Complete
-au FileType python match OverLength /\%81v.\+/
+au FileType python match OverLength /\%100v.\+/
 " remove trailing spaces  on save
 autocmd BufWritePre *.py :%s/\s\+$//e
 
