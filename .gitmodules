@@ -10,3 +10,6 @@
 [submodule "dotfiles/vim/bundle/vim-bracketed-paste"]
 	path = dotfiles/vim/bundle/vim-bracketed-paste
 	url = https://github.com/ConradIrwin/vim-bracketed-paste
+[submodule "dotfiles/vim/bundle/railscasts-theme"]
+	path = dotfiles/vim/bundle/railscasts-theme
+	url = git@github.com:dhruvasagar/vim-railscasts-theme.git

@@ -26,7 +26,7 @@ onoremap zz <C-C>za
 vnoremap zz zf
 
 " tasklist plugin
-map <leader>todo <Plug>TaskList
+map <leader>t <Plug>TaskList
 
 " open NerdTree
 map <leader>n :NERDTreeToggle<CR>
@@ -45,6 +45,9 @@ inoremap <C-Right> <C-C>:tabnext<CR>
 
 " Disable replace mode
 imap <Insert> <Nop>
+
+" Alias qq to closing the tab (closes all splits at once)
+cabbrev qq tabclose
 
 " ========================================
 " General
@@ -77,6 +80,14 @@ set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
 " Set color scheme
 colo elflord
 set background=dark
+
+" Set color scheme for vimdiff and diff tools
+if &diff
+    colorscheme railscasts
+endif
+au FilterWritePre * if &diff | colorscheme railscasts | endif
+
+
 " prepare highlight color for over-length symbols
 " http://vim.wikia.com/wiki/Xterm256_color_names_for_console_Vim?file=Xterm-color-table.png
 highlight OverLength ctermbg=52
