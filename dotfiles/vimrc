@@ -135,6 +135,10 @@ set ignorecase " Default to using case insensitive searches,
 set smartcase " unless uppercase letters are used in the regex.
 set hlsearch " Highlight searches by default.
 
+
+""" Make Git Gutter update as fast as possible
+set updatetime=100
+
 " ========================================
 " Filetype Specific Changes
 " ========================================
