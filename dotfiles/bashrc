@@ -17,6 +17,12 @@ source ~/.bash_completion.d/git_prompt
 export GIT_PS1_SHOWDIRTYSTATE=true
 export GIT_PS1_SHOWUNTRACKEDFILES=true
 
+function pagurepr {
+    remote="${2:-origin}"
+    git fetch $remote pull/$1/head:pr_$1
+    git checkout pr_$1
+}
+
 
 PS1='[\u@\h \W]$(__git_ps1 " (%s)")\\$ '
 export PS1
