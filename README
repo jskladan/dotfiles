@@ -1,0 +1,24 @@
+= Latest bash on MacOS
+
+`
+brew install bash
+sudo sh -c 'echo /opt/homebrew/bin/bash >> /etc/shells'
+chsh -s /opt/homebrew/bin/bash
+`
+
+Scripts need to use "#!/usr/bin/env bash" in order to use the brew-bash, not "#!/bin/bash"
+
+= Neovim
+
+`
+brew install nvim
+brew install ripgrep
+`
+
+Some of the LSP servers need npm to install/run:
+
+`
+brew install npm
+`
+
+Packer (plugin manager) should be auto-bootstrapped. If not, install according to: https://github.com/wbthomason/packer.nvim#quickstart

@@ -1,0 +1,93 @@
+" set autochdir
+
+" expand %% in commands to path to the current file's dir
+"   so for example `:cd %%` will change the vim's current working dir to the file's home dir
+"   also works with the likes of `:e`, `:grep`, etc
+cabbr <expr> %% expand('%:p:h')
+
+set history=700
+
+colo elflord
+set background=dark
+set cursorline
+
+set noswapfile
+set noautoread " Don't automatically re-read changed files.
+set modeline " Allow vim options to be embedded in files;
+set modelines=5 " they must be within the first or last 5 lines.
+set number
+" set relativenumber
+
+set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
+set fileencodings=utf-8,cp1251,default,latin1 " try encodings in this order while reading file
+autocmd BufWritePre * :%s/\s\+$//e " Delete trailing whitespaces on file write
+
+" Remaps
+imap <Insert> <Nop> " Disable replace mode
+let mapleader="," " Set Leader key to ,
+noremap <leader>e :Ex<CR> " Open file explorer
+noremap == gg=G''^<left> " Auto-Indent complete file, move cursor to the first character of the original line
+
+
+" Insert completion
+set completeopt=menuone,longest,preview " don't select first item, follow typing in autocomplete
+set pumheight=10 " Keep a small completion window
+
+" Moving Around/Editing
+set ruler " show the cursor position all the time
+set nostartofline " Avoid moving cursor to BOL when jumping around
+set showmatch " Briefly jump to a paren once it's balanced
+set nowrap " don't wrap text
+" set guicursor=i:block " fat cursor in insert mode
+
+" Keep cursor (as)centered(as possible) in all modes
+"  Can be replaced by vim-scripts/scrollfix plugin to set a different
+"    offset than 50%
+" autocmd CursorMoved,CursorMovedI * call Center_cursor()
+" function! Center_cursor()
+"     let pos = getpos(".")
+"     normal! zz
+"     call setpos(".", pos)
+" endfunction
+
+" Do not move the cursor, when mouse is clicked in to VIM's window just to get focus
+augroup NO_CURSOR_MOVE_ON_FOCUS
+  au!
+  au FocusLost * let g:oldmouse=&mouse | set mouse=
+  au FocusGained * if exists('g:oldmouse') | let &mouse=g:oldmouse | unlet g:oldmouse | endif
+augroup END
+
+" Display tabs with :set list && displays when a line runs off-screen
+set listchars=tab:>-,trail:-,precedes:<,extends:>
+set list
+
+" set autoindent " always set autoindenting on
+set tabstop=4 " <tab> inserts 4 spaces.
+set shiftwidth=4 " use the < and > keys in visual mode to block indent/unindent
+set softtabstop=4 " <BS> over an autoindent deletes both spaces.
+set expandtab " Use spaces, not tabs, for autoindent/tab key.
+set smarttab " Handle tabs more intelligently
+set shiftround " rounds indent to a multiple of shiftwidth
+
+syntax on
+filetype on
+filetype plugin on
+filetype indent on
+
+" Searching and Patterns
+set ignorecase " Default to using case insensitive searches,
+set smartcase " unless uppercase letters are used in the regex.
+set hlsearch " Highlight searches by default.
+nnoremap <leader>/ :noh<CR>
+
+" Managing tabs <C-t> is Ctrl+t
+nnoremap <C-t>     :tabnew<CR>
+nnoremap <C-Left>  :tabprevious<CR>
+nnoremap <C-Right> :tabnext<CR>
+
+inoremap <C-t>     <C-c>:tabnew<CR>
+inoremap <C-Left>  <C-c>:tabprevious<CR>
+inoremap <C-Right> <C-c>:tabnext<CR>
+
+" Alias qq to closing the tab (closes all splits at once)
+cabbrev qq tabclose
