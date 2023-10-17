@@ -24,7 +24,7 @@ for fname in $file_list; do
             fi
             rm -f ${bkp_dotfiles}/${fname}
         fi
-
+        echo "Backed up ./${fname} to ${bkp_dotfiles}/${fname}"
         cp -L ~/.${fname} ${bkp_dotfiles}/${fname}_${timestamp} && ln -s ${bkp_dotfiles}/${fname}_${timestamp} ${bkp_dotfiles}/${fname} && rm ~/.${fname}
     fi
 
@@ -50,6 +50,7 @@ for fname in $file_list; do
             rm -f ${bkp_completion}/${fname}
         fi
 
+        echo "Backed up ~/.bash_completion.d/${fname} to ${bkp_completion}/${fname}"
         cp -L ~/.bash_completion.d/${fname} ${bkp_completion}/${fname}_${timestamp} && ln -s ${bkp_completion}/${fname}_${timestamp} ${bkp_completion}/${fname} && rm ~/.bash_completion.d/${fname}
     fi
     ln -s ${dir}/${fname} ~/.bash_completion.d/${fname}
@@ -75,6 +76,7 @@ for dirname in ${dir_list}; do
             rm -f ${bkp_config}/${dirname}
         fi
 
+        echo "Backed up ~/.config/${dirname} to ${bkp_config}/${dirname}"
         cp -RL ~/.config/${dirname} ${bkp_config}/${dirname}_${timestamp} && ln -s ${bkp_config}/${dirname}_${timestamp} ${bkp_config}/${dirname} && rm -rI ~/.config/${dirname}
     fi
     ln -s ${dir}/${dirname} ~/.config/${dirname}
