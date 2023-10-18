@@ -27,7 +27,9 @@ imap <Insert> <Nop> " Disable replace mode
 let mapleader="," " Set Leader key to ,
 noremap <leader>e :Ex<CR> " Open file explorer
 noremap == gg=G''^<left> " Auto-Indent complete file, move cursor to the first character of the original line
-
+"" Switch 0 and ^... I know, heresy, but 0 is easier to write, and I don't use the 'first character' position almost at all
+noremap 0 ^
+noremap ^ 0
 
 " Insert completion
 set completeopt=menuone,longest,preview " don't select first item, follow typing in autocomplete
