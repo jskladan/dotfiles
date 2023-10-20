@@ -16,7 +16,7 @@ set noautoread " Don't automatically re-read changed files.
 set modeline " Allow vim options to be embedded in files;
 set modelines=5 " they must be within the first or last 5 lines.
 set number
-" set relativenumber
+set relativenumber
 
 set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
 set fileencodings=utf-8,cp1251,default,latin1 " try encodings in this order while reading file
@@ -27,9 +27,18 @@ imap <Insert> <Nop> " Disable replace mode
 let mapleader="," " Set Leader key to ,
 noremap <leader>e :Ex<CR> " Open file explorer
 noremap == gg=G''^<left> " Auto-Indent complete file, move cursor to the first character of the original line
+
 "" Switch 0 and ^... I know, heresy, but 0 is easier to write, and I don't use the 'first character' position almost at all
 noremap 0 ^
 noremap ^ 0
+
+"" Map C-[ and C-] to scoll half page up/down in normal mode, yes, I know it fucks-up escape
+""  and go to definition...
+nnoremap <C-[> <C-U>zz
+nnoremap <C-]> <C-D>zz
+"" make C-C be Escape now :)
+noremap <C-c> <Esc>
+inoremap <C-c> <Esc>
 
 " Insert completion
 set completeopt=menuone,longest,preview " don't select first item, follow typing in autocomplete

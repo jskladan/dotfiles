@@ -1,1 +1,1 @@
-vim.cmd("let g:scrollfix=40")
+vim.cmd("let g:scrollfix=-1")
