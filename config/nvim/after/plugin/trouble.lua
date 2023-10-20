@@ -5,7 +5,7 @@ function vimgrep_fixme_toggle()
     if trouble.is_open() then
         trouble.close()
     else
-        vim.cmd("silent vimgrep FIXME\\|TODO\\C %")
+        vim.cmd("silent! vimgrep FIXME\\|TODO\\C %")
         trouble.toggle("quickfix")
     end
 end
