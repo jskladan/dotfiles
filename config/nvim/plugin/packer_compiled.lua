@@ -205,6 +205,11 @@ _G.packer_plugins = {
     path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/scrollfix",
     url = "https://github.com/vim-scripts/scrollfix"
   },
+  ["telescope-fzf-native.nvim"] = {
+    loaded = true,
+    path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/telescope-fzf-native.nvim",
+    url = "https://github.com/nvim-telescope/telescope-fzf-native.nvim"
+  },
   ["telescope.nvim"] = {
     loaded = true,
     path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/telescope.nvim",
