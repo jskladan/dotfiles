@@ -72,7 +72,7 @@ require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup({
     completion = {
-        autocomplete = false, -- Dont auto popup
+        autocomplete = false,     -- Dont auto popup
     },
     -- suggestions are generally in the sources-order
     sources = {
@@ -80,7 +80,22 @@ cmp.setup({
         { name = 'luasnip' },
         { name = 'nvim_lsp' },
         { name = 'nvim_lua' },
-        { name = 'buffer',  keyword_length = 3, max_item_count = 10 },
+        {
+            name = 'buffer',
+            keyword_length = 3,
+            max_item_count = 10,
+            option = {
+                get_bufnrs = function()
+                    return vim.api.nvim_list_bufs()
+                end
+            }
+        },
+    },
+    sorting = {
+        comparators = {
+            function(...) return require('cmp_buffer'):compare_locality(...) end,
+            -- The rest of your comparators...
+        }
     },
     window = {
         completion = cmp.config.window.bordered(),
@@ -94,7 +109,7 @@ cmp.setup({
             local kind    = require("lspkind").cmp_format({ mode = "symbol_text", maxwidth = 50 })(entry, vim_item)
             local strings = vim.split(kind.kind, "%s", { trimempty = true })
             -- kind.kind     = " " .. (strings[1] or "") .. " " -- window.completion.col_offset = -3
-            kind.kind     = "" -- window.completion.col_offset = 0
+            kind.kind     = ""         -- window.completion.col_offset = 0
             kind.menu     = "  (" .. (strings[2] or "") .. ") "
             return kind
         end,
