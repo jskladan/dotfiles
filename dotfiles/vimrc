@@ -16,7 +16,7 @@ set noautoread " Don't automatically re-read changed files.
 set modeline " Allow vim options to be embedded in files;
 set modelines=5 " they must be within the first or last 5 lines.
 set number
-set relativenumber
+"set relativenumber
 
 set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
 set fileencodings=utf-8,cp1251,default,latin1 " try encodings in this order while reading file
@@ -26,19 +26,34 @@ autocmd BufWritePre * :%s/\s\+$//e " Delete trailing whitespaces on file write
 imap <Insert> <Nop> " Disable replace mode
 let mapleader="," " Set Leader key to ,
 noremap <leader>e :Ex<CR> " Open file explorer
-noremap == gg=G''^<left> " Auto-Indent complete file, move cursor to the first character of the original line
+noremap == gg=G''^ " Auto-Indent complete file, move cursor to the first character of the original line
 
 "" Switch 0 and ^... I know, heresy, but 0 is easier to write, and I don't use the 'first character' position almost at all
 noremap 0 ^
 noremap ^ 0
 
-"" Map C-[ and C-] to scoll half page up/down in normal mode, yes, I know it fucks-up escape
-""  and go to definition...
-nnoremap <C-[> <C-U>zz
-nnoremap <C-]> <C-D>zz
-"" make C-C be Escape now :)
+""" Map C-[ and C-] to scoll half page up/down in normal mode, yes, I know it fucks-up escape
+"""  and go to definition...
+"nnoremap <C-[> <C-U>zz
+"nnoremap <C-]> <C-D>zz
+
+"" Make { } scroll halv page up/down in normal mode, instead of paragraph
+nnoremap { <C-U>zz
+nnoremap } <C-D>zz
+
+"" Make C-C be Escape now :)
 noremap <C-c> <Esc>
 inoremap <C-c> <Esc>
+
+"" Keep visual selection on indent
+xnoremap < <gv
+xnoremap > >gv
+
+"" Yank to clipboard
+nnoremap <leader>y "+y
+vnoremap <leader>y "+y
+nnoremap <leader>yy "+yy
+
 
 " Insert completion
 set completeopt=menuone,longest,preview " don't select first item, follow typing in autocomplete
@@ -72,7 +87,7 @@ augroup END
 set listchars=tab:>-,trail:-,precedes:<,extends:>
 set list
 
-" set autoindent " always set autoindenting on
+set autoindent
 set tabstop=4 " <tab> inserts 4 spaces.
 set shiftwidth=4 " use the < and > keys in visual mode to block indent/unindent
 set softtabstop=4 " <BS> over an autoindent deletes both spaces.

@@ -230,6 +230,11 @@ _G.packer_plugins = {
     path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/vim-lastplace",
     url = "https://github.com/farmergreg/vim-lastplace"
   },
+  ["vim-python-pep8-indent"] = {
+    loaded = true,
+    path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/vim-python-pep8-indent",
+    url = "https://github.com/Vimjas/vim-python-pep8-indent"
+  },
   ["vim-surround"] = {
     loaded = true,
     path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/vim-surround",

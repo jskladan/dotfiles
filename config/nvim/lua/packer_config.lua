@@ -22,6 +22,9 @@ return require('packer').startup(function(use)
     -- Packer can manage itself
     use 'wbthomason/packer.nvim'
 
+    -- use 'folke/neodev.nvim'
+    -- use '/Users/jskladan/Devel/whid'
+
     -- Fuzzy file finder
     use {
         'nvim-telescope/telescope.nvim', tag = '0.1.3',
@@ -109,6 +112,10 @@ return require('packer').startup(function(use)
             { 'onsails/lspkind.nvim' },
         }
     }
+
+    -- Better Python indenting
+    -- might not be necessary: https://stackoverflow.com/a/75015253
+    use { 'Vimjas/vim-python-pep8-indent' }
 
     -- Automatically set up your configuration after cloning packer.nvim
     if packer_bootstrap then
