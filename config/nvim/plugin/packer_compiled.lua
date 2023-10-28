@@ -117,7 +117,7 @@ _G.packer_plugins = {
   ["kanagawa.nvim"] = {
     loaded = true,
     path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/kanagawa.nvim",
-    url = "https://github.com/rebelot/kanagawa.nvim"
+    url = "/users/jskladan/devel/kanagawa.nvim"
   },
   ["lsp-zero.nvim"] = {
     loaded = true,
@@ -148,11 +148,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/mason.nvim",
     url = "https://github.com/williamboman/mason.nvim"
-  },
-  neovim = {
-    loaded = true,
-    path = "/Users/jskladan/.local/share/nvim/site/pack/packer/start/neovim",
-    url = "https://github.com/rose-pine/neovim"
   },
   ["null-ls.nvim"] = {
     loaded = true,

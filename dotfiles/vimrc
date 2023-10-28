@@ -1,3 +1,5 @@
+set nocompatible
+
 " set autochdir
 
 " expand %% in commands to path to the current file's dir
@@ -103,7 +105,7 @@ filetype indent on
 " Searching and Patterns
 set ignorecase " Default to using case insensitive searches,
 set smartcase " unless uppercase letters are used in the regex.
-set hlsearch " Highlight searches by default.
+" set hlsearch " Highlight searches by default.
 nnoremap <leader>/ :noh<CR>
 
 " Managing tabs <C-t> is Ctrl+t

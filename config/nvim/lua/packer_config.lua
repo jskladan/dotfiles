@@ -44,8 +44,7 @@ return require('packer').startup(function(use)
 
     -- themes
     use { 'projekt0n/github-nvim-theme' }
-    use { 'rose-pine/neovim' }
-    use { 'rebelot/kanagawa.nvim' }
+    use { '/users/jskladan/devel/kanagawa.nvim' }
 
     -- Configurable status line
     use {
