@@ -116,6 +116,8 @@ return require('packer').startup(function(use)
     -- might not be necessary: https://stackoverflow.com/a/75015253
     use { 'Vimjas/vim-python-pep8-indent' }
 
+    -- use { 'mitsuhiko/vim-jinja' }
+    use { 'Glench/Vim-Jinja2-Syntax' }
     -- Automatically set up your configuration after cloning packer.nvim
     if packer_bootstrap then
         require('packer').sync()

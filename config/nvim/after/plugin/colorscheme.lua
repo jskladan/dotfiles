@@ -20,7 +20,8 @@ require('kanagawa').setup({
                     bg_m3 = p.sumiInk4,          -- WinSeparator fg; TabLine bg
                     bg_gutter = "none",
                     fg_search = p.dragonBlack0,--p.sumiInk5,
-                    bg_cur_search = p.lightBlue,--p.sumiInk5,
+                    bg_cur_search = p.surimiOrange,
+                    fg_cur_search = "#ffffff",
                     bg_search = p.surimiOrange,--p.sumiInk5,
                     bg_visual = p.dragonBlack5,
                     nontext = p.fujiGray,  -- LineNr fg

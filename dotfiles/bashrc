@@ -59,5 +59,8 @@ export HISTFILE=~/.bash_eternal_history
 # http://superuser.com/questions/20900/bash-history-loss
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
-PS1='[\u@\h \W]$(__git_ps1 " (%s)")\\$ '
+GREY=$(tput setaf 247)
+RESET=$(tput sgr0)
+
+PS1='${GREY}[\u@\h \w]\n$(__git_ps1 "(%s)")${RESET}\\$ '
 export PS1

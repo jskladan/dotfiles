@@ -39,6 +39,10 @@ null_ls.setup({
     },
 })
 
+require'lspconfig'.html.setup {
+  filetypes = { "html", "jinja.html" },
+}
+
 -- remap buffer formatting shortcut
 vim.keymap.set('n', '==', vim.lsp.buf.format)
 
