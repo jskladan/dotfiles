@@ -62,5 +62,6 @@ PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 GREY=$(tput setaf 247)
 RESET=$(tput sgr0)
 
-PS1='${GREY}[\u@\h \w]\n$(__git_ps1 "(%s)")${RESET}\\$ '
+PS1='${GREY}[\u@\h \w]${RESET}\n${GREY}$(__git_ps1 "(%s)")${RESET}\\$ '
+PS1='[\u@\h \w]\n$(__git_ps1 "(%s)")\\$ '
 export PS1

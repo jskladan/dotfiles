@@ -39,9 +39,21 @@ null_ls.setup({
     },
 })
 
-require'lspconfig'.html.setup {
-  filetypes = { "html", "jinja.html" },
+require 'lspconfig'.html.setup {
+    filetypes = { "html", "jinja.html" },
 }
+
+require 'lspconfig'.pyright.setup { settings = {
+    pyright = { autoImportCompletion = true, },
+    python = {
+        analysis = {
+            autoSearchPaths = true,
+            diagnosticMode = 'openFilesOnly',
+            useLibraryCodeForTypes = true,
+            typeCheckingMode = 'off'
+        }
+    }
+} }
 
 -- remap buffer formatting shortcut
 vim.keymap.set('n', '==', vim.lsp.buf.format)
@@ -76,7 +88,7 @@ require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup({
     completion = {
-        autocomplete = false,     -- Dont auto popup
+        autocomplete = false, -- Dont auto popup
     },
     -- suggestions are generally in the sources-order
     sources = {
@@ -113,7 +125,7 @@ cmp.setup({
             local kind    = require("lspkind").cmp_format({ mode = "symbol_text", maxwidth = 50 })(entry, vim_item)
             local strings = vim.split(kind.kind, "%s", { trimempty = true })
             -- kind.kind     = " " .. (strings[1] or "") .. " " -- window.completion.col_offset = -3
-            kind.kind     = ""         -- window.completion.col_offset = 0
+            kind.kind     = "" -- window.completion.col_offset = 0
             kind.menu     = "  (" .. (strings[2] or "") .. ") "
             return kind
         end,

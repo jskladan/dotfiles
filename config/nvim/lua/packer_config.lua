@@ -43,7 +43,6 @@ return require('packer').startup(function(use)
     use { 'nvim-treesitter/playground' }
 
     -- themes
-    use { 'projekt0n/github-nvim-theme' }
     use { '/users/jskladan/devel/kanagawa.nvim' }
 
     -- Configurable status line
@@ -82,6 +81,9 @@ return require('packer').startup(function(use)
             'nvim-tree/nvim-web-devicons', -- optional
         }
     }
+
+    -- Diffview
+    use { "sindrets/diffview.nvim" }
 
     -- LSP
     use {
@@ -123,4 +125,3 @@ return require('packer').startup(function(use)
         require('packer').sync()
     end
 end)
-
