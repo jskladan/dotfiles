@@ -36,9 +36,18 @@ alias ll='ls -lah'
 if which thefuck >> /dev/null; then
     eval $(thefuck --alias)
 fi
+
 if command -v nvim >/dev/null; then
     alias vim='nvim'
+    export EDITOR=nvim
+else
+    export EDITOR=vim
 fi
+
+
+# Disable homebrew autoupdate on brew install
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 
 
 # https://geoff.greer.fm/lscolors/

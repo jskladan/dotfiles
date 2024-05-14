@@ -31,6 +31,8 @@ require("mason-null-ls").setup({
     ensure_installed = { "black", "isort" }
 })
 
+
+
 local null_ls = require("null-ls")
 null_ls.setup({
     sources = {
@@ -39,8 +41,9 @@ null_ls.setup({
     },
 })
 
+
 require 'lspconfig'.html.setup {
-    filetypes = { "html", "jinja.html" },
+    filetypes = { "html", "jinja.html", "jinja" },
 }
 
 require 'lspconfig'.pyright.setup { settings = {
