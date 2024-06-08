@@ -28,23 +28,32 @@ require('mason-lspconfig').setup({
 })
 
 require("mason-null-ls").setup({
-    ensure_installed = { "black", "isort" }
+    ensure_installed = { "black", "isort", "djlint" },
+    automatic_installation = true,
 })
 
 
 
 local null_ls = require("null-ls")
+
 null_ls.setup({
     sources = {
         null_ls.builtins.formatting.isort,
         null_ls.builtins.formatting.black,
+-- FIXME - nejak vymyslet, aby se --line-legth nastavila jen kdyz neni pyproject.toml ?
+--         null_ls.builtins.formatting.black.with({
+--             extra_args = { "--line-length", 100},
+--         }),
+        null_ls.builtins.formatting.djlint.with({
+            filetypes = { "html", "jinja.html", "jinja" },
+        }),
     },
 })
 
 
-require 'lspconfig'.html.setup {
-    filetypes = { "html", "jinja.html", "jinja" },
-}
+-- require 'lspconfig'.html.setup {
+--     filetypes = { "html", "jinja.html", "jinja" },
+-- }
 
 require 'lspconfig'.pyright.setup { settings = {
     pyright = { autoImportCompletion = true, },
