@@ -21,7 +21,7 @@ end)
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
-    ensure_installed = { 'lua_ls', 'html', 'pyright' },
+    ensure_installed = { 'lua_ls', 'html', 'pyright', 'tsserver' },
     handlers = {
         lsp_zero.default_setup,
     },
@@ -33,6 +33,9 @@ require("mason-null-ls").setup({
 })
 
 
+require 'lspconfig'.html.setup {
+    filetypes = { "html", "jinja.html", "jinja" },
+}
 
 local null_ls = require("null-ls")
 
@@ -51,9 +54,6 @@ null_ls.setup({
 })
 
 
--- require 'lspconfig'.html.setup {
---     filetypes = { "html", "jinja.html", "jinja" },
--- }
 
 require 'lspconfig'.pyright.setup { settings = {
     pyright = { autoImportCompletion = true, },
@@ -96,6 +96,8 @@ local cmp = require('cmp')
 local cmp_action = require('lsp-zero').cmp_action()
 
 -- load the vscode-style code snippets. Lazy load makes it "faster" to open files.
+local lsnip = require('luasnip')
+lsnip.filetype_extend("jinja", { "html" })
 require('luasnip.loaders.from_vscode').lazy_load()
 
 cmp.setup({

@@ -105,8 +105,10 @@ return require('packer').startup(function(use)
             { 'hrsh7th/cmp-nvim-lsp-signature-help' },
 
             -- snippets
-            { 'L3MON4D3/LuaSnip' },
-            { 'rafamadriz/friendly-snippets' },
+            {
+                'L3MON4D3/LuaSnip',
+                dependencies = { "rafamadriz/friendly-snippets" },
+            },
             { 'saadparwaiz1/cmp_luasnip' },
 
             -- "nicer" lsp complete floating window
