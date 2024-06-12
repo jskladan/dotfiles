@@ -76,11 +76,12 @@ export HISTCONTROL=ignoreboth
 export HISTFILESIZE=
 export HISTSIZE=
 
-# append the recenly closed session to end (?)
+# append the recenly closed session to end on EXIT signal
 function historymerge {
-    E1="^(ls|ll|pwd|fg|bg|exit|history)$"
-    E2="^git (fetch|pull|push|commit -am .)$"
-    grep -v -E "${E1}|${E2}" $HISTFILE >> $ETERNAL_HISTFILE
+    E1="^(ls|ll|pwd|fg|bg|exit|history|vim \.)$"
+    E2="^git (fetch|pull|push|commit -am .|diff|status)$"
+    E3="^(python runapp\.py|source \.bin.env.activate)$"
+    grep -v -E "${E1}|${E2}|${E3}" $HISTFILE >> $ETERNAL_HISTFILE
     rm $HISTFILE
 }
 trap historymerge EXIT
