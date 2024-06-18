@@ -3,6 +3,11 @@ if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
 
+# Ignore /etc/hosts
+export COMP_KNOWN_HOSTS_WITH_HOSTFILE=''
+# Homebrew Bash-completion
+[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+
 # Fix homebrew [https://github.com/orgs/Homebrew/discussions/446]
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
