@@ -1,4 +1,4 @@
-require("trouble").setup({ icons = false })
+require("trouble").setup()
 
 function vimgrep_fixme_toggle()
     local trouble = require("trouble")
@@ -7,9 +7,10 @@ function vimgrep_fixme_toggle()
     else
         vim.cmd("silent! vimgrep FIXME\\|TODO\\C %")
         trouble.toggle("quickfix")
+        trouble.focus()
     end
 end
 
-vim.keymap.set("n", "<leader>xx", function() require("trouble").toggle("document_diagnostics") end)
-vim.keymap.set("n", "<leader>xw", function() require("trouble").toggle("workspace_diagnostics") end)
+vim.keymap.set("n", "<leader>xx", function() vim.cmd [[Trouble diagnostics toggle focus=true filter.buf=0]] end)
+vim.keymap.set("n", "<leader>xa", function() vim.cmd [[Trouble diagnostics toggle focus=true]] end)
 vim.keymap.set("n", "<leader>xd", vimgrep_fixme_toggle)
