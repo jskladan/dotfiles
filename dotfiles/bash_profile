@@ -1,3 +1,17 @@
 if [ -f $HOME/.bashrc ]; then
-        source $HOME/.bashrc
+    source $HOME/.bashrc
+fi
+
+SESSION_TYPE=""
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    SESSION_TYPE=remote/ssh
+else
+    case $(ps -o comm= -p $PPID) in
+        sshd|*/sshd) SESSION_TYPE=remote/ssh;;
+    esac
+fi
+
+if [[ $SESSION_TYPE = 'remote/ssh' ]]; then
+    export PROMPT_GIT_COLOR=$PROMPT_COLOR
+    export PROMPT_COLOR=$C_BLUE #"38;5;69"
 fi
