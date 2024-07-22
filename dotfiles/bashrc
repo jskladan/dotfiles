@@ -9,14 +9,16 @@ export COMP_KNOWN_HOSTS_WITH_HOSTFILE=''
 [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
 
 # Fix homebrew [https://github.com/orgs/Homebrew/discussions/446]
-eval "$(/opt/homebrew/bin/brew shellenv)"
+[[ -r "/opt/homebrew/bin/brew" ]] &&  eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # PyENV [https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv]
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="command -v pyenv >/dev/null || $PYENV_ROOT/bin:$PATH"
-export PATH="command -v shims >/dev/null || $PYENV_ROOT/shims:${PATH}"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+if which pyenv 2>/dev/null; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="command -v pyenv >/dev/null || $PYENV_ROOT/bin:$PATH"
+    export PATH="command -v shims >/dev/null || $PYENV_ROOT/shims:${PATH}"
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
 
 # Git
 function parse_git_branch {
@@ -36,7 +38,7 @@ function pagurepr {
 
 
 # Aliases
-alias ls='ls -FG' # / at the end of dirs; colorized
+alias ls='ls -F --color' # / at the end of dirs; colorized
 alias ll='ls -lah'
 if which thefuck >> /dev/null; then
     eval $(thefuck --alias)
