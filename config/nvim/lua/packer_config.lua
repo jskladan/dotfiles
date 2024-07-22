@@ -43,7 +43,8 @@ return require('packer').startup(function(use)
     use { 'nvim-treesitter/playground' }
 
     -- themes
-    use { '/users/jskladan/devel/kanagawa.nvim' }
+    use { 'jskladan/kanagawa.nvim' }
+    -- use { '/users/jskladan/devel/kanagawa.nvim' }
 
     -- Configurable status line
     use {
