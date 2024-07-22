@@ -33,6 +33,7 @@ function parse_git_branch {
 source ~/.bash_completion.d/git
 source ~/.bash_completion.d/git_prompt
 export GIT_PS1_SHOWDIRTYSTATE=true
+export GIT_PS1_SHOWSTASHSTATE=true
 export GIT_PS1_SHOWUNTRACKEDFILES=true
 
 function pagurepr {
@@ -88,9 +89,9 @@ export HISTSIZE=
 
 # append the recenly closed session to end on EXIT signal
 function historymerge {
-    E1="^(ls|ll|pwd|fg|bg|exit|history|vim \.)$"
-    E2="^git (fetch|pull|push|commit -am .|diff|status)$"
-    E3="^(python runapp\.py|source \.bin.env.activate)$"
+    local E1="^(ls|ll|pwd|fg|bg|exit|history|vim \.)$"
+    local E2="^git (fetch|pull|push|commit -am .|diff|status)$"
+    local E3="^(python runapp\.py|source \.bin.env.activate)$"
     grep -v -E "${E1}|${E2}|${E3}" $HISTFILE >> $ETERNAL_HISTFILE
     rm $HISTFILE
 }
@@ -101,11 +102,65 @@ trap historymerge EXIT
 shopt -s histappend
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
-GREY=$(tput setaf 247)
-RESET=$(tput sgr0)
 
-PS1='${GREY}[\u@\h \w]${RESET}\n${GREY}$(__git_ps1 "(%s)")${RESET}\\$ '
+# PS1/PROMPT_COMMAND related config
 PS1='[\u@\h \w]\n$(__git_ps1 "(%s)")\\$ '
+
+
+function list_colors_codes {
+    for i in $(seq 1 255); do
+        echo "38;5;$i $(tput setaf $i)XXX$(tput sgr0)"
+    done
+}
+
+
+function __git_ps1_colorized {
+
+    local C_PRE="\e["
+    local C_SUF="m"
+
+    local C_DEFAULT="${PROMPT_GIT_COLOR:-${PROMPT_COLOR}}"
+    local C_DIRTY="${C_YELLOW}"
+
+    local val=`__git_ps1 "%s"`
+    read -ra val_arr <<<"$val" # "safe" way to split string without bash expansion
+
+    case "${#val_arr[@]}" in
+        2)
+            echo -e "${C_PRE}${C_DIRTY}${C_SUF}(${val})"
+            ;;
+        *)
+            echo -e "${C_PRE}${C_DEFAULT}${C_SUF}(${val})"
+            ;;
+    esac
+
+    echo -e "${frmt}"
+}
+
+C_RED="38;5;196"
+C_BLUE="38;5;39"
+C_YELLOW="38;5;178"
+C_GREEN="38;5;40"
+C_GREY="38;5;247"
+
+C_PRE='\[\e['
+C_SUF='m\]'
+C_RES="${C_PRE}0${C_SUF}"
+
+[[ "$EUID" -ne 0 ]] && PROMPT_COLOR=$C_GREY || PROMPT_COLOR=$C_RED
+
+PROMPT_USERHOST="\u@\h"
+PROMPT_SEPARATOR=" "
+PROMPT_DIRECTORY="\w"
+
+PS1='${PROMPT_START@P}'
+PS1+="${C_PRE}"'${PROMPT_COLOR}'"${C_SUF}"'[${PROMPT_USERHOST@P}'"${C_RES}"
+PS1+='${PROMPT_SEPARATOR@P}'
+PS1+="${C_PRE}"'${PROMPT_DIR_COLOR:-${PROMPT_COLOR}}'"${C_SUF}"'${PROMPT_DIRECTORY@P}]'"${C_RES}"
+PS1+='\n'
+PS1+='$(__git_ps1_colorized)'"${C_RES}"
+PS1+=' ${PROMPT_END@P}\$'"${C_RES} "
+
 export PS1
 
 
@@ -116,41 +171,34 @@ function tabset {
 
     # echo $HOSTNAME --> server.my.domain
     # echo ${HOSTNAME%%.*} --> server
-    HOSTSTRING="${HOSTNAME%%.*}"
+    local host="${HOSTNAME%%.*}"
 
-    case $HOSTSTRING in
+    case $host in
         Josefs-MacBook-Pro)
-            HOSTSTRING="MacBook"
+            host="MacBook"
             ;;
         fedora-desktop)
-            HOSTSTRING="Desktop"
+            host="Desktop"
             ;;
         *)
             ;;
     esac
 
+    local user=""
+    if [[ "$EUID" -eq 0 ]]; then  user="ROOT@"; fi
 
-    [[ "$EUID" -ne 0 ]] && USERSTRING="" || USERSTRING="ROOT@"
+    local text=""
+    if [[ "$1" ]]; then text+="[${*}] "; fi
 
-    # the complete original value of 'TABNAME'
-    #TABNAME='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"'
-
-    TABNAME='echo -ne "\033]0;'
-    if [ "$1" ]
-    then
-        TABNAME+="[${*}] "
-    fi
-    # Because I _SUUUUCK_ at bash interpolation...
-    TABNAME+="${USERSTRING}${HOSTSTRING}"
-    TABNAME+='\007"'
+    local SET_TAB_TEXT='echo -ne "\033]0;'"${text}${user}${host}"'\007"'
 
     if [[ $PROMPT_COMMAND_BASE =~ .(;|; )$ ]]
     then
-        export PROMPT_COMMAND="${PROMPT_COMMAND_BASE} ${TABNAME}; "
+        export PROMPT_COMMAND="${PROMPT_COMMAND_BASE} ${SET_TAB_TEXT}; "
     else
-        export PROMPT_COMMAND="${PROMPT_COMMAND_BASE}; ${TABNAME}; "
+        export PROMPT_COMMAND="${PROMPT_COMMAND_BASE}; ${SET_TAB_TEXT}; "
     fi
 }
 
-# Set the tab name to "default"
+# Set the tab name
 tabset
