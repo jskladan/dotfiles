@@ -129,10 +129,10 @@ function __git_ps1_colorized {
         0)
             ;;
         2)
-            echo -e "${C_PRE}${C_DIRTY}${C_SUF}(${val})"
+            echo -e "${C_PRE}${C_DIRTY}${C_SUF}(${val}) "
             ;;
         *)
-            echo -e "${C_PRE}${C_DEFAULT}${C_SUF}(${val})"
+            echo -e "${C_PRE}${C_DEFAULT}${C_SUF}(${val}) "
             ;;
     esac
 }
@@ -158,7 +158,7 @@ PS1+="${C_PRE}"'${PROMPT_COLOR}'"${C_SUF}"'[${PROMPT_USERHOST@P}'"${C_RES}"
 PS1+='${PROMPT_SEPARATOR@P}'
 PS1+="${C_PRE}"'${PROMPT_DIR_COLOR:-${PROMPT_COLOR}}'"${C_SUF}"'${PROMPT_DIRECTORY@P}]'"${C_RES}"
 PS1+='\n'
-PS1+='$(__git_ps1_colorized)'"${C_RES} "
+PS1+='$(__git_ps1_colorized)'"${C_RES}"
 PS1+='${PROMPT_END@P}\$'"${C_RES} "
 
 export PS1
