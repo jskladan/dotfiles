@@ -124,6 +124,8 @@ return require('packer').startup(function(use)
 
     -- use { 'mitsuhiko/vim-jinja' }
     use { 'Glench/Vim-Jinja2-Syntax' }
+
+    use { 'lewis6991/gitsigns.nvim' }
     -- Automatically set up your configuration after cloning packer.nvim
     if packer_bootstrap then
         require('packer').sync()
