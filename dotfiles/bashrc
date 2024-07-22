@@ -122,6 +122,9 @@ function tabset {
         Josefs-MacBook-Pro)
             HOSTSTRING="MacBook"
             ;;
+        fedora-desktop)
+            HOSTSTRING="Desktop"
+            ;;
         *)
             ;;
     esac
