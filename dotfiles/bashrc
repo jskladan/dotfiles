@@ -126,6 +126,8 @@ function __git_ps1_colorized {
     read -ra val_arr <<<"$val" # "safe" way to split string without bash expansion
 
     case "${#val_arr[@]}" in
+        0)
+            ;;
         2)
             echo -e "${C_PRE}${C_DIRTY}${C_SUF}(${val})"
             ;;
@@ -133,8 +135,6 @@ function __git_ps1_colorized {
             echo -e "${C_PRE}${C_DEFAULT}${C_SUF}(${val})"
             ;;
     esac
-
-    echo -e "${frmt}"
 }
 
 C_RED="38;5;196"
@@ -158,8 +158,8 @@ PS1+="${C_PRE}"'${PROMPT_COLOR}'"${C_SUF}"'[${PROMPT_USERHOST@P}'"${C_RES}"
 PS1+='${PROMPT_SEPARATOR@P}'
 PS1+="${C_PRE}"'${PROMPT_DIR_COLOR:-${PROMPT_COLOR}}'"${C_SUF}"'${PROMPT_DIRECTORY@P}]'"${C_RES}"
 PS1+='\n'
-PS1+='$(__git_ps1_colorized)'"${C_RES}"
-PS1+=' ${PROMPT_END@P}\$'"${C_RES} "
+PS1+='$(__git_ps1_colorized)'"${C_RES} "
+PS1+='${PROMPT_END@P}\$'"${C_RES} "
 
 export PS1
 
