@@ -80,7 +80,7 @@ history -r $ETERNAL_HISTFILE
 # Create new histfile for the "session"
 mkdir -p ~/.bash_history_sessions
 export HISTFILE=~/.bash_history_sessions/$(date '+%Y%m%d_%H%M%S').$$
-echo "# HISTFILE=${HISTFILE}" > $HISTFILE
+#echo "# HISTFILE=${HISTFILE}" > $HISTFILE
 
 # ignore lines matching the previous history entry
 #  +
