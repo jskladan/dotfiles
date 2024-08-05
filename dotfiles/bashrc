@@ -10,11 +10,20 @@ fi
 
 # Ignore /etc/hosts
 export COMP_KNOWN_HOSTS_WITH_HOSTFILE=''
-# Homebrew Bash-completion
-[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
 
-# Fix homebrew [https://github.com/orgs/Homebrew/discussions/446]
-[[ -r "/opt/homebrew/bin/brew" ]] &&  eval "$(/opt/homebrew/bin/brew shellenv)"
+
+if [[ $OSTYPE != ^.arwin.* ]]; then
+    # Homebrew Bash-completion
+    [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+
+    # Fix homebrew [https://github.com/orgs/Homebrew/discussions/446]
+    [[ -r "/opt/homebrew/bin/brew" ]] &&  eval "$(/opt/homebrew/bin/brew shellenv)"
+
+    # Disable homebrew autoupdate on brew install
+    export HOMEBREW_NO_AUTO_UPDATE=1
+    # Transcode video on HW
+    # alias yt-dlp='yt-dlp -f "bestvideo[height<=1080]+bestaudio" --cookies-from-browser firefox -o "%(title)s.%(ext)s" --merge-output-format mp4 --postprocessor-args "-c:v hevc_videotoolbox -c:a aac"'
+fi
 
 # ADD ~/.local/bin to PATH
 if [[ -d "${HOME}/.local/bin" ]]; then
@@ -62,8 +71,7 @@ else
 fi
 
 
-# Disable homebrew autoupdate on brew install
-export HOMEBREW_NO_AUTO_UPDATE=1
+alias yt-dlp='yt-dlp -f "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]"  --cookies-from-browser firefox -o "%(title)s.%(ext)s" --merge-output-format mp4'
 
 # https://geoff.greer.fm/lscolors/
 export LSCOLORS='exfxchbhcxegedabagacad'
@@ -80,7 +88,7 @@ history -r $ETERNAL_HISTFILE
 # Create new histfile for the "session"
 mkdir -p ~/.bash_history_sessions
 export HISTFILE=~/.bash_history_sessions/$(date '+%Y%m%d_%H%M%S').$$
-#echo "# HISTFILE=${HISTFILE}" > $HISTFILE
+touch $HISTFILE
 
 # ignore lines matching the previous history entry
 #  +
@@ -94,9 +102,9 @@ export HISTSIZE=
 
 # append the recenly closed session to end on EXIT signal
 function historymerge {
-    local E1="^(ls|ll|pwd|fg|bg|exit|history|vim \.)$"
+    local E1="^(cd|cd \.\.|ls|ll|mc|pwd|fg|bg|exit|history|vim|vim \.)$"
     local E2="^git (fetch|pull|push|commit -am .|diff|status)$"
-    local E3="^(python runapp\.py|source \.bin.env.activate)$"
+    local E3="^(python|python3|python runapp\.py|source \.bin.env.activate)$"
     grep -v -E "${E1}|${E2}|${E3}" $HISTFILE >> $ETERNAL_HISTFILE
     rm $HISTFILE
 }
