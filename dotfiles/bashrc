@@ -128,24 +128,21 @@ function list_colors_codes {
 
 
 function __git_ps1_colorized {
-
-    local C_PRE="\e["
-    local C_SUF="m"
-
-    local C_DEFAULT="${PROMPT_GIT_COLOR:-${PROMPT_COLOR}}"
-    local C_DIRTY="${C_YELLOW}"
-
     local val=`__git_ps1 "%s"`
     read -ra val_arr <<<"$val" # "safe" way to split string without bash expansion
 
+    # select variant based on the split-array's-length
+    # 0 ~~ Not in git
+    # 1 ~~ No flags
+    # 2 ~~ Some flags
     case "${#val_arr[@]}" in
-        0)
+        1)
+            echo -e "${C_PRE}${PROMPT_GIT_COLOR:-${PROMPT_COLOR}}${C_SUF}(${val})${C_RES} "
             ;;
         2)
-            echo -e "${C_PRE}${C_DIRTY}${C_SUF}(${val}) "
+            echo -e "${C_PRE}${C_YELLOW}${C_SUF}(${val})${C_RES} "
             ;;
         *)
-            echo -e "${C_PRE}${C_DEFAULT}${C_SUF}(${val}) "
             ;;
     esac
 }
@@ -156,23 +153,21 @@ C_YELLOW="38;5;178"
 C_GREEN="38;5;40"
 C_GREY="38;5;247"
 
-C_PRE='\[\e['
-C_SUF='m\]'
+# the '\001 '\002 are a necessary workarund for PS1 & bash colors...
+C_PRE=$'\001\e['
+C_SUF=$'m\002'
 C_RES="${C_PRE}0${C_SUF}"
 
 [[ "$EUID" -ne 0 ]] && PROMPT_COLOR=$C_GREY || PROMPT_COLOR=$C_RED
 
 PROMPT_USERHOST="\u@\h"
-PROMPT_SEPARATOR=" "
 PROMPT_DIRECTORY="\w"
 
-PS1='${PROMPT_START@P}'
-PS1+="${C_PRE}"'${PROMPT_COLOR}'"${C_SUF}"'[${PROMPT_USERHOST@P}'"${C_RES}"
-PS1+='${PROMPT_SEPARATOR@P}'
+PS1="${C_PRE}"'${PROMPT_COLOR}'"${C_SUF}"'[${PROMPT_USERHOST@P}'"${C_RES}"
+PS1+=' '
 PS1+="${C_PRE}"'${PROMPT_DIR_COLOR:-${PROMPT_COLOR}}'"${C_SUF}"'${PROMPT_DIRECTORY@P}]'"${C_RES}"
 PS1+='\n'
-PS1+='$(__git_ps1_colorized)'"${C_RES}"
-PS1+='${PROMPT_END@P}\$'"${C_RES} "
+PS1+='$(__git_ps1_colorized)\$ '
 
 export PS1
 
