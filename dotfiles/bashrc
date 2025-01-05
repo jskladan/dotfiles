@@ -39,6 +39,10 @@ if which pyenv > /dev/null 2>&1; then
     eval "$(pyenv virtualenv-init -)"
 fi
 
+if which go > /dev/null 2>&1; then
+    export PATH=$PATH:$(go env GOPATH)/bin
+fi
+
 # Git
 function parse_git_branch {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
@@ -57,6 +61,7 @@ function pagurepr {
 }
 
 # Aliases
+alias python=python3
 alias ls='ls -F --color' # / at the end of dirs; colorized
 alias ll='ls -lah'
 if which thefuck >> /dev/null; then

@@ -21,7 +21,7 @@ end)
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
-    ensure_installed = { 'lua_ls', 'html', 'pyright', 'tsserver' },
+    ensure_installed = { 'lua_ls', 'html', 'pyright', 'gopls' },
     handlers = {
         lsp_zero.default_setup,
     },
@@ -37,6 +37,23 @@ require 'lspconfig'.html.setup {
     filetypes = { "html", "jinja.html", "jinja" },
 }
 
+local lspconfigutil = require "lspconfig/util"
+require 'lspconfig'.gopls.setup {
+    filetypes = { "go", "gomod", "gowork", "gotmpl" },
+    cmd = {"gopls"},
+    root_dir = lspconfigutil.root_pattern("go.work", "go.mod", ".git"),
+    settings = {
+        gopls = {
+            completeUnimported = true,
+            usePlaceholders = true,
+            analyses = {
+                unusedparams = true,
+            },
+        },
+    }
+}
+
+
 local null_ls = require("null-ls")
 
 null_ls.setup({
@@ -50,6 +67,9 @@ null_ls.setup({
         null_ls.builtins.formatting.djlint.with({
             filetypes = { "html", "jinja.html", "jinja" },
         }),
+        null_ls.builtins.formatting.gofmt,
+        null_ls.builtins.formatting.goimports_reviser,
+        null_ls.builtins.formatting.golines,
     },
 })
 
