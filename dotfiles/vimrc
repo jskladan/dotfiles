@@ -30,10 +30,6 @@ let mapleader="," " Set Leader key to ,
 noremap <leader>e :Ex<CR> " Open file explorer
 noremap == gg=G''^ " Auto-Indent complete file, move cursor to the first character of the original line
 
-"" Switch 0 and ^... I know, heresy, but 0 is easier to write, and I don't use the 'first character' position almost at all
-noremap 0 ^
-noremap ^ 0
-
 """ Map C-[ and C-] to scoll half page up/down in normal mode, yes, I know it fucks-up escape
 """  and go to definition...
 "nnoremap <C-[> <C-U>zz
@@ -93,7 +89,7 @@ set autoindent
 set tabstop=4 " <tab> inserts 4 spaces.
 set shiftwidth=4 " use the < and > keys in visual mode to block indent/unindent
 set softtabstop=4 " <BS> over an autoindent deletes both spaces.
-set expandtab " Use spaces, not tabs, for autoindent/tab key.
+"set expandtab " Use spaces, not tabs, for autoindent/tab key.
 set smarttab " Handle tabs more intelligently
 set shiftround " rounds indent to a multiple of shiftwidth
 
@@ -103,8 +99,8 @@ filetype plugin on
 filetype indent on
 
 " Searching and Patterns
-set ignorecase " Default to using case insensitive searches,
-set smartcase " unless uppercase letters are used in the regex.
+set ignorecase " Default to using case insensitive searches-- ,
+set smartcase " unless uppercase letters are used in the re-- gex.
 " set hlsearch " Highlight searches by default.
 nnoremap <leader>/ :noh<CR>
 
@@ -117,5 +113,36 @@ inoremap <C-t>     <C-c>:tabnew<CR>
 inoremap <C-Left>  <C-c>:tabprevious<CR>
 inoremap <C-Right> <C-c>:tabnext<CR>
 
+augroup vimrc
+    au!
+    if mapcheck("<C-i>", "N") != ""
+        au VimEnter * nunmap <C-i>
+    end
+    if mapcheck("<C-j>", "N") != ""
+        au VimEnter * nunmap <C-j>
+    end
+    if mapcheck("<C-k>", "N") != ""
+        au VimEnter * nunmap <C-k>
+    end
+    if mapcheck("<C-l>", "N") != ""
+        au VimEnter * nunmap <C-l>
+    end
+
+    au VimEnter * nnoremap <C-i> <Up>
+    au VimEnter * nnoremap <C-j> <Left>
+    au VimEnter * nnoremap <C-k> <Down>
+    au VimEnter * nnoremap <C-l> <Right>
+augroup END
+
+inoremap <C-i> <Up>
+inoremap <C-j> <Left>
+inoremap <C-k> <Down>
+inoremap <C-l> <Right>
+
 " Alias qq to closing the tab (closes all splits at once)
 cabbrev qq tabclose
+
+" Jump to the last position when reopening file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
