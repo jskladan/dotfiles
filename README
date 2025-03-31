@@ -11,6 +11,10 @@ Scripts need to use "#!/usr/bin/env bash" in order to use the brew-bash, not "#!
 = Neovim
 
 `
+git submodule update --init
+`
+
+`
 brew install nvim
 brew install ripgrep
 `
