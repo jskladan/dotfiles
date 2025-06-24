@@ -1,0 +1,9 @@
+[NotebookList]
+Default=
+1=~/Dokumenty/Zim
+
+[Notebook 1]
+uri=~/Dokumenty/Zim
+name=Zim
+interwiki=None
+icon=None
