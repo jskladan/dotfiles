@@ -22,8 +22,6 @@
 
 # clearly makes git better
 
-[column]
-        ui = auto
 [branch]
         sort = -committerdate
 [tag]
