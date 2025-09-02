@@ -13,6 +13,8 @@
     b = branch -vv
     meld = !/home/jskladan/bin/git-meld.pl
     squash = rebase -i
+    glmr = !sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -
+    reword = "!f() {\n  GIT_SEQUENCE_EDITOR=\"sed -i '' 1s/^pick/reword/\" GIT_EDITOR=\"printf \\\"%s\\n\\\" \\\"$2\\\" >\" git rebase -i \"$1^\";\n}; f"
 
 [diff]
     tool = vimdiff

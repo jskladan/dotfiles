@@ -15,3 +15,9 @@ if [[ $SESSION_TYPE = 'remote/ssh' ]]; then
     export PROMPT_GIT_COLOR=$PROMPT_COLOR
     export PROMPT_COLOR=$C_BLUE #"38;5;69"
 fi
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '~/google-cloud-sdk/path.bash.inc' ]; then . '~/google-cloud-sdk/path.bash.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '~/google-cloud-sdk/completion.bash.inc' ]; then . '~/google-cloud-sdk/completion.bash.inc'; fi

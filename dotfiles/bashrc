@@ -62,6 +62,7 @@ function pagurepr {
 
 # Aliases
 alias python=python3
+alias pyformat='git diff --name-only HEAD | grep '\''\.py$'\'' | xargs -r sh -c '\''isort "$@" && black "$@"'\'' --'
 alias ls='ls -F --color' # / at the end of dirs; colorized
 alias ll='ls -lah'
 if which thefuck >> /dev/null; then
@@ -74,7 +75,6 @@ if command -v nvim >/dev/null; then
 else
     export EDITOR=vim
 fi
-
 
 alias yt-dlp='yt-dlp -f "bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]"  --cookies-from-browser firefox -o "%(title)s.%(ext)s" --merge-output-format mp4'
 
@@ -215,3 +215,7 @@ function tabset {
 
 # Set the tab name
 tabset
+
+# Source the gemini api key
+source ~/gemini_api_key.sh
+source ~/redhat_claude_code.sh
