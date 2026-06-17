@@ -219,3 +219,5 @@ tabset
 # Source the gemini api key
 source ~/gemini_api_key.sh
 source ~/redhat_claude_code.sh
+source ~/jira_api_key.sh
+source ~/glab_api_key.sh
