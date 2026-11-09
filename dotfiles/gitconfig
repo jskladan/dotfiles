@@ -16,6 +16,9 @@
     glmr = !sh -c 'git fetch $1 merge-requests/$2/head:mr-$1-$2 && git checkout mr-$1-$2' -
     reword = "!f() {\n  GIT_SEQUENCE_EDITOR=\"sed -i '' 1s/^pick/reword/\" GIT_EDITOR=\"printf \\\"%s\\n\\\" \\\"$2\\\" >\" git rebase -i \"$1^\";\n}; f"
     nuke = !sh -c 'git push origin :$1 && git branch -D $1' -
+	approve = "!f() { PROJECT=$(git remote get-url origin | sed -E \"s|.*gitlab.com[:/](.*)\\.git$|\\1|\" | sed \"s|/|%2F|g\"); RESP=$(curl -s -w \"\\n%{http_code}\" --header \"PRIVATE-TOKEN: $GITLAB_APPROVE_TOKEN\" --request POST \"https://gitlab.com/api/v4/projects/${PROJECT}/merge_requests/${1}/approve\"); CODE=$(echo \"$RESP\" | tail -1); BODY=$(echo \"$RESP\" | sed \\$d); if [ \"$CODE\" -ge 200 ] && [ \"$CODE\" -lt 300 ]; then echo \"Approved MR !${1}\"; else echo \"Error ($CODE): $(echo \"$BODY\" | jq -r \".message // .error // .\")\"; fi; }; f"
+	unapprove = "!f() { PROJECT=$(git remote get-url origin | sed -E \"s|.*gitlab.com[:/](.*)\\.git$|\\1|\" | sed \"s|/|%2F|g\"); RESP=$(curl -s -w \"\\n%{http_code}\" --header \"PRIVATE-TOKEN: $GITLAB_APPROVE_TOKEN\" --request POST \"https://gitlab.com/api/v4/projects/${PROJECT}/merge_requests/${1}/unapprove\"); CODE=$(echo \"$RESP\" | tail -1); BODY=$(echo \"$RESP\" | sed \\$d); if [ \"$CODE\" -ge 200 ] && [ \"$CODE\" -lt 300 ]; then echo \"Unapproved MR !${1}\"; else echo \"Error ($CODE): $(echo \"$BODY\" | jq -r \".message // .error // .\")\"; fi; }; f"
+	amend = commit -a --amend --no-edit
 
 [diff]
     tool = vimdiff
