@@ -12,17 +12,27 @@ fi
 export COMP_KNOWN_HOSTS_WITH_HOSTFILE=''
 
 
-if [[ $OSTYPE != ^.arwin.* ]]; then
+# Disable homebrew autoupdate on brew install (cheap, applies on all OSes)
+export HOMEBREW_NO_AUTO_UPDATE=1
+
+# On Linux, pull in Homebrew's bash-completion + shellenv.
+# NOTE: this used to be `[[ $OSTYPE != ^.arwin.* ]]`, which is a glob test that
+# is always true, so the whole block (including `brew shellenv`, a subprocess)
+# ran on macOS too.
+if [[ $OSTYPE != darwin* ]]; then
     # Homebrew Bash-completion
     [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
 
     # Fix homebrew [https://github.com/orgs/Homebrew/discussions/446]
-    [[ -r "/opt/homebrew/bin/brew" ]] &&  eval "$(/opt/homebrew/bin/brew shellenv)"
+    [[ -r "/opt/homebrew/bin/brew" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 
-    # Disable homebrew autoupdate on brew install
-    export HOMEBREW_NO_AUTO_UPDATE=1
     # Transcode video on HW
     # alias yt-dlp='yt-dlp -f "bestvideo[height<=1080]+bestaudio" --cookies-from-browser firefox -o "%(title)s.%(ext)s" --merge-output-format mp4 --postprocessor-args "-c:v hevc_videotoolbox -c:a aac"'
+fi
+
+# Ensure Homebrew is on PATH on macOS without spawning `brew shellenv`.
+if [[ $OSTYPE == darwin* && ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+    export PATH="/opt/homebrew/bin:$PATH"
 fi
 
 # ADD ~/.local/bin to PATH
@@ -30,18 +40,22 @@ if [[ -d "${HOME}/.local/bin" ]]; then
     PATH=$PATH:~/.local/bin
 fi
 
-# PyENV [https://github.com/pyenv/pyenv#set-up-your-shell-environment-for-pyenv]
-if which pyenv > /dev/null 2>&1; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="command -v pyenv >/dev/null || $PYENV_ROOT/bin:$PATH"
-    export PATH="command -v shims >/dev/null || $PYENV_ROOT/shims:${PATH}"
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-fi
+# PyENV — intentionally NOT initialized at shell startup.
+# `eval "$(pyenv init -)"` ran `pyenv rehash` (a filesystem scan) and
+# `eval "$(pyenv virtualenv-init -)"` on every new shell (~0.65s total).
+# On this machine `pyenv global` is "system", no project pins .python-version,
+# and python3 already resolves to /opt/homebrew/bin/python3. Use `uv` instead.
+# To opt back in for a session:
+#   export PYENV_ROOT="$HOME/.pyenv"
+#   eval "$(pyenv init -)"; eval "$(pyenv virtualenv-init -)"
+# (Note: the old PATH lines here were also broken — they put the literal text
+#  `command -v pyenv >/dev/null ||` into PATH instead of setting it.)
 
-if which go > /dev/null 2>&1; then
-    export PATH=$PATH:$(go env GOPATH)/bin
-fi
+# Add Go's bin dir without spawning `go env` on every shell.
+case ":$PATH:" in
+    *":${GOPATH:-$HOME/go}/bin:"*) ;;
+    *) export PATH="$PATH:${GOPATH:-$HOME/go}/bin" ;;
+esac
 
 # Git
 function parse_git_branch {
@@ -65,8 +79,10 @@ alias python=python3
 alias pyformat='git diff --name-only HEAD | grep '\''\.py$'\'' | xargs -r sh -c '\''isort "$@" && black "$@"'\'' --'
 alias ls='ls -F --color' # / at the end of dirs; colorized
 alias ll='ls -lah'
-if which thefuck >> /dev/null; then
-    eval $(thefuck --alias)
+# Lazy-load thefuck: `thefuck --alias` starts Python on every shell (~0.13s).
+# The stub loads the real function on first use.
+if command -v thefuck >/dev/null 2>&1; then
+    fuck() { unset -f fuck; eval "$(thefuck --alias)"; fuck "$@"; }
 fi
 
 if command -v nvim >/dev/null; then
@@ -132,8 +148,42 @@ function list_colors_codes {
 }
 
 
+# Fast git prompt: one `git status` call instead of the ~8 subprocesses
+# `__git_ps1` spawns (each costs ~35-50ms under the corporate EDR agent).
+# Output matches `__git_ps1 "%s"` with GIT_PS1_SHOWDIRTYSTATE/STASHSTATE/
+# UNTRACKEDFILES enabled: "<branch>[ *][+][$][%]".
 function __git_ps1_colorized {
-    local val=`__git_ps1 "%s"`
+    local out head="" stash=0 w="" i="" u="" oid="" xy val
+    out=$(git status --porcelain=v2 --branch --show-stash 2>/dev/null) || return
+
+    while IFS= read -r line; do
+        case "$line" in
+            '# branch.head '*) head=${line#\# branch.head } ;;
+            '# branch.oid '*)  oid=${line#\# branch.oid } ;;
+            '# stash '*)       stash=${line#\# stash } ;;
+            '?'*)              u='%' ;;
+            '1 '*|'2 '*)
+                xy=${line:2:2}
+                [[ ${xy:0:1} != . ]] && i='+'
+                [[ ${xy:1:1} != . ]] && w='*'
+                ;;
+            'u '*)             w='*'; i='+' ;;
+        esac
+    done <<< "$out"
+
+    [ -z "$head" ] && return
+    # Detached HEAD needs describe/tag logic — fall back to the original.
+    if [ "$head" = "(detached)" ]; then
+        val=$(__git_ps1 "%s")
+    else
+        [[ "$oid" = "(initial)" && -z "$i" ]] && i='#'
+        local flags="${w}${i}"
+        (( stash > 0 )) && flags+='$'
+        flags+="$u"
+        val="$head"
+        [ -n "$flags" ] && val+=" $flags"
+    fi
+
     read -ra val_arr <<<"$val" # "safe" way to split string without bash expansion
 
     # select variant based on the split-array's-length
