@@ -30,6 +30,7 @@
 
 [branch]
         sort = -committerdate
+	autoSetupMerge = simple
 [tag]
         sort = version:refname
 [diff]
