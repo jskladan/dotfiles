@@ -69,6 +69,22 @@ link_files "$ROOT/dotfiles" "$HOME" "." "$BACKUP/dotfiles"
 link_files "$ROOT/bash_completion.d" "$HOME/.bash_completion.d" "" "$BACKUP/bash_completion"
 link_config_dirs
 
+if (( BASH_VERSINFO[0] < 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] < 2) )); then
+    echo "warning: bash >= 5.2 recommended (found ${BASH_VERSION})."
+fi
+
+missing=""
+for cmd in git fzf bat nvim rg node npm; do
+    command -v "$cmd" >/dev/null 2>&1 || missing="$missing $cmd"
+done
+if [ -n "$missing" ]; then
+    echo "warning: missing tools:$missing — see the Dependencies section in README."
+fi
+
+if [ ! -r /opt/homebrew/etc/profile.d/bash_completion.sh ] && [ ! -r /usr/share/bash-completion/bash_completion ]; then
+    echo "note: bash-completion not found — install bash-completion@2 (macOS) or bash-completion (Fedora)."
+fi
+
 if command -v bat >/dev/null 2>&1; then
     echo "Building bat theme cache..."
     bat cache --build

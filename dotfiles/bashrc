@@ -43,8 +43,17 @@ if [[ $OSTYPE == darwin* ]]; then
         *) export INFOPATH="/opt/homebrew/share/info${INFOPATH:+:$INFOPATH}" ;;
     esac
 
-    # Homebrew bash-completion (only if the package is installed)
-    [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+fi
+
+# bash-completion: brew install bash-completion@2 (macOS) or
+# dnf install bash-completion (Fedora). /etc/bashrc may already have loaded it
+# on Linux, hence the guard.
+if [[ -z ${BASH_COMPLETION_VERSINFO-} ]]; then
+    if [[ -r /opt/homebrew/etc/profile.d/bash_completion.sh ]]; then
+        . /opt/homebrew/etc/profile.d/bash_completion.sh
+    elif [[ -r /usr/share/bash-completion/bash_completion ]]; then
+        . /usr/share/bash-completion/bash_completion
+    fi
 fi
 
 # ADD ~/.local/bin to PATH

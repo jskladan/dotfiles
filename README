@@ -2,6 +2,56 @@
 
 Bash, git, vim/nvim, bat and terminal setup for **macOS** and **Fedora/RHEL**.
 
+## Dependencies
+
+### Install on macOS
+
+The system bash is 3.2; this config needs **bash >= 5.2**.
+
+```bash
+brew install bash bash-completion@2 git curl fzf bat ripgrep neovim node
+echo /opt/homebrew/bin/bash | sudo tee -a /etc/shells
+chsh -s /opt/homebrew/bin/bash
+```
+
+Use `#!/usr/bin/env bash` in scripts (not `#!/bin/bash`).
+
+Optional, used if present:
+
+```bash
+brew install uv jq go thefuck
+# Google Cloud SDK: https://cloud.google.com/sdk/docs/install
+```
+
+iTerm2 profiles, colors and fonts are in `iTerm/`.
+
+### Install on Fedora / RHEL
+
+```bash
+sudo dnf install bash bash-completion git curl fzf bat ripgrep neovim nodejs npm
+# RHEL: enable EPEL first if a package is missing.
+```
+
+Optional, used if present:
+
+```bash
+sudo dnf install uv jq golang pipx
+pipx install thefuck        # if it is not packaged on your release
+# Google Cloud SDK: https://cloud.google.com/sdk/docs/install
+```
+
+Notes:
+
+- The Ctrl-R history widget needs a **current fzf** (`--info-command`,
+  `--scheme=history`). If the distro package is too old, install a release from
+  <https://github.com/junegunn/fzf/releases>.
+- `bat` is optional: without it the history preview is plain text.
+- `bash-completion` is sourced by `dotfiles/bashrc` (Homebrew's
+  `profile.d/bash_completion.sh` on macOS, `/usr/share/bash-completion/bash_completion`
+  on Fedora). The vendored git completions also work without it.
+- Python: **pyenv is not initialized** by this setup (its init rehashed on every
+  shell); use [`uv`](https://github.com/astral-sh/uv).
+
 ## Bootstrap
 
 ```bash
@@ -13,12 +63,12 @@ exec bash -l          # or open a new terminal
 
 `setup_bash.sh` symlinks:
 
-- `dotfiles/*`      → `~/.<name>` (bashrc, bash_profile, gitconfig, inputrc, vimrc)
+- `dotfiles/*`          → `~/.<name>` (bashrc, bash_profile, gitconfig, inputrc, vimrc)
 - `bash_completion.d/*` → `~/.bash_completion.d/`
-- `config/<dir>`    → `~/.config/<dir>` (nvim, zim, bat)
+- `config/<dir>`        → `~/.config/<dir>` (nvim, zim, bat)
 
-Existing files are backed up under `backup/`. If `bat` is installed, the script
-also rebuilds bat's theme cache so the `everforest-dark` theme is picked up.
+Existing files are backed up under `backup/`. The script warns about missing
+tools and rebuilds bat's theme cache so `everforest-dark` is available.
 
 ### Secrets
 
@@ -31,58 +81,19 @@ The bottom of `dotfiles/bashrc` sources these from `$HOME`:
 
 Create them with your own exports (mode `600`), or delete those `source` lines.
 
-## macOS
-
-The system bash is 3.2; this config needs **bash >= 5.2**.
-
-```bash
-brew install bash
-echo /opt/homebrew/bin/bash | sudo tee -a /etc/shells
-chsh -s /opt/homebrew/bin/bash
-```
-
-Use `#!/usr/bin/env bash` in scripts (not `#!/bin/bash`).
-
-```bash
-brew install git fzf bat ripgrep neovim node
-```
-
-iTerm2 profiles, colors and fonts are in `iTerm/`.
-
-## Fedora / RHEL
-
-bash 5 is already installed.
-
-```bash
-sudo dnf install git fzf bat ripgrep neovim nodejs npm
-# RHEL: enable EPEL first if a package is missing.
-```
-
-Use a current **fzf** — the distro package can be too old for `--info-command`
-and `--scheme=history`. If the history widget misbehaves, install a release
-from <https://github.com/junegunn/fzf/releases>.
-
-`bat` is optional: without it the history preview is plain text.
-
 ## Neovim
 
 The config lives in `config/nvim` (kickstart.nvim + lazy.nvim, auto-bootstrapped
-on first start). Some LSP servers need npm:
-
-```bash
-brew install npm                # macOS
-sudo dnf install nodejs npm     # Fedora/RHEL
-```
+on first start). Some LSP servers need npm (installed above).
 
 ## What you get
 
-- **Fast startup.** pyenv is intentionally not initialized (its init ran a
-  filesystem rehash every shell); use [`uv`](https://github.com/astral-sh/uv)
-  for Python. thefuck loads lazily, Homebrew is set up without spawning `brew`,
-  and the git prompt uses one `git status` instead of `__git_ps1`'s ~8.
-- **Eternal history.** Noise is filtered (`set …`, `cd`, `ls`, …), orphaned
-  session files are swept once a day in the background, and history blocks stay
-  in order (duplicates are kept on purpose).
+- **Fast startup.** pyenv is not initialized; thefuck loads lazily, Homebrew is
+  configured without spawning `brew`, and the git prompt uses one `git status`
+  instead of `__git_ps1`'s ~8.
+- **Eternal history.** Noise (`set …`, `cd`, `ls`, …) is filtered, orphaned
+  session files are swept once a day in the background, and command blocks stay
+  in order.
 - **Ctrl-R history search** (fzf) with a block preview:
 
   | Key | Action |
@@ -93,6 +104,6 @@ sudo dnf install nodejs npm     # Fedora/RHEL
   | `Ctrl-/` | toggle preview |
   | `F1` | toggle the key-hint header |
 
-  The preview uses `bat` with the `everforest-dark` theme (`config/bat`), which
-  matches the terminal/nvim palette.
-- `stty -ixon` is set so `Ctrl-S` works instead of freezing the terminal.
+  The preview uses `bat` with the `everforest-dark` theme (`config/bat`),
+  matching the terminal/nvim palette.
+- `stty -ixon` so `Ctrl-S` works instead of freezing the terminal.
