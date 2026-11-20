@@ -68,16 +68,15 @@ for dirname in ${dir_list}; do
         continue
     fi
 
-    if [ -e ~/.config/${dirname} ]; then
-        if [ -e ${dir}/${dirname} ]; then
-            if [ ~/.config/${dirname} -ef ${dir}/${dirname} ]; then
-                continue
-            fi
-            rm -f ${bkp_config}/${dirname}
+    if [ -e "$HOME/.config/${dirname}" ]; then
+        # Already a symlink to our copy — nothing to do.
+        if [ "$HOME/.config/${dirname}" -ef "${dir}/${dirname}" ]; then
+            continue
         fi
+        rm -f "${bkp_config}/${dirname}"
 
         echo "Backed up ~/.config/${dirname} to ${bkp_config}/${dirname}"
-        cp -RL ~/.config/${dirname} ${bkp_config}/${dirname}_${timestamp} && ln -s ${bkp_config}/${dirname}_${timestamp} ${bkp_config}/${dirname} && rm -rI ~/.config/${dirname}
+        cp -RL "$HOME/.config/${dirname}" "${bkp_config}/${dirname}_${timestamp}" && ln -s "${bkp_config}/${dirname}_${timestamp}" "${bkp_config}/${dirname}" && rm -rI "$HOME/.config/${dirname}"
     fi
-    ln -s ${dir}/${dirname} ~/.config/${dirname}
+    ln -s "${dir}/${dirname}" "$HOME/.config/${dirname}"
 done

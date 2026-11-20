@@ -3,6 +3,12 @@
 #   `source ~/.bashrc` executions in one session
 unset PROMPT_COMMAND
 
+# Make Ctrl-S usable in the terminal. By default it is XOFF software flow
+# control, which freezes output until Ctrl-Q and never reaches fzf.
+if [[ $- == *i* && -t 0 ]]; then
+    stty -ixon 2>/dev/null
+fi
+
 # Source global definitions
 if [ -f /etc/bashrc ]; then
     . /etc/bashrc
@@ -12,27 +18,33 @@ fi
 export COMP_KNOWN_HOSTS_WITH_HOSTFILE=''
 
 
-# Disable homebrew autoupdate on brew install (cheap, applies on all OSes)
+# Disable homebrew autoupdate on brew install
 export HOMEBREW_NO_AUTO_UPDATE=1
 
-# On Linux, pull in Homebrew's bash-completion + shellenv.
-# NOTE: this used to be `[[ $OSTYPE != ^.arwin.* ]]`, which is a glob test that
-# is always true, so the whole block (including `brew shellenv`, a subprocess)
-# ran on macOS too.
-if [[ $OSTYPE != darwin* ]]; then
-    # Homebrew Bash-completion
+# Load Homebrew on macOS. The old test was `[[ $OSTYPE != ^.arwin.* ]]`, which
+# is a glob that is always true — so this block never ran as intended. These are
+# the values `brew shellenv` sets on an Apple Silicon Mac, applied statically so
+# we don't spawn `brew` on every shell start.
+if [[ $OSTYPE == darwin* ]]; then
+    export HOMEBREW_PREFIX="/opt/homebrew"
+    export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+    export HOMEBREW_REPOSITORY="/opt/homebrew"
+
+    case ":$PATH:" in
+        *":/opt/homebrew/bin:"*) ;;
+        *) export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH" ;;
+    esac
+    case ":$MANPATH:" in
+        *":/opt/homebrew/share/man:"*) ;;
+        *) export MANPATH="/opt/homebrew/share/man${MANPATH:+:$MANPATH}" ;;
+    esac
+    case ":$INFOPATH:" in
+        *":/opt/homebrew/share/info:"*) ;;
+        *) export INFOPATH="/opt/homebrew/share/info${INFOPATH:+:$INFOPATH}" ;;
+    esac
+
+    # Homebrew bash-completion (only if the package is installed)
     [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
-
-    # Fix homebrew [https://github.com/orgs/Homebrew/discussions/446]
-    [[ -r "/opt/homebrew/bin/brew" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
-
-    # Transcode video on HW
-    # alias yt-dlp='yt-dlp -f "bestvideo[height<=1080]+bestaudio" --cookies-from-browser firefox -o "%(title)s.%(ext)s" --merge-output-format mp4 --postprocessor-args "-c:v hevc_videotoolbox -c:a aac"'
-fi
-
-# Ensure Homebrew is on PATH on macOS without spawning `brew shellenv`.
-if [[ $OSTYPE == darwin* && ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
-    export PATH="/opt/homebrew/bin:$PATH"
 fi
 
 # ADD ~/.local/bin to PATH
@@ -58,10 +70,6 @@ case ":$PATH:" in
 esac
 
 # Git
-function parse_git_branch {
-  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-}
-
 source ~/.bash_completion.d/git
 source ~/.bash_completion.d/git_prompt
 export GIT_PS1_SHOWDIRTYSTATE=true
@@ -77,8 +85,17 @@ function pagurepr {
 # Aliases
 alias python=python3
 alias pyformat='git diff --name-only HEAD | grep '\''\.py$'\'' | xargs -r sh -c '\''isort "$@" && black "$@"'\'' --'
-alias ls='ls -F --color' # / at the end of dirs; colorized
+# Colorized ls: BSD (`-G`) on macOS, GNU (`--color`) elsewhere.
+if [[ $OSTYPE == darwin* ]]; then
+    alias ls='ls -FG'
+else
+    alias ls='ls -F --color=auto'
+fi
 alias ll='ls -lah'
+
+# Nicer bat colors for the history preview (and anywhere else bat is used).
+# BAT_THEME is bat's own standard override; change or unset it to taste.
+export BAT_THEME="${BAT_THEME:-everforest-dark}"
 # Lazy-load thefuck: `thefuck --alias` starts Python on every shell (~0.13s).
 # The stub loads the real function on first use.
 if command -v thefuck >/dev/null 2>&1; then
@@ -116,20 +133,95 @@ touch $HISTFILE
 # ignore lines which begin with a white space character
 export HISTCONTROL=ignoreboth
 
+# Drop all `set ...` commands from history. Something outside this config
+# replays a shell-option snapshot (`set +o ...`, `set -o ...`) into interactive
+# history once per session. This covers the bare command and every form with
+# arguments. (HISTORY_FILTER below applies the same rule when merging.)
+export HISTIGNORE='set:set *'
+
 # Undocumented feature which sets the size to "unlimited".
 # http://stackoverflow.com/questions/9457233/unlimited-bash-history
 export HISTFILESIZE=
 export HISTSIZE=
 
-# append the recenly closed session to end on EXIT signal
+# Commands considered noise; not written to the eternal history.
+HISTORY_FILTER='^(cd|cd \.\.|ls|ll|mc|pwd|fg|bg|exit|history|vim|vim \.)$|^git (fetch|pull|push|commit -am .|diff|status)$|^(python|python3|python runapp\.py|source \.bin.env.activate)$|^set( |$)'
+
+# append the recently closed session to the eternal history on EXIT
 function historymerge {
-    local E1="^(cd|cd \.\.|ls|ll|mc|pwd|fg|bg|exit|history|vim|vim \.)$"
-    local E2="^git (fetch|pull|push|commit -am .|diff|status)$"
-    local E3="^(python|python3|python runapp\.py|source \.bin.env.activate)$"
-    grep -v -E "${E1}|${E2}|${E3}" $HISTFILE >> $ETERNAL_HISTFILE
-    rm $HISTFILE
+    grep -v -E "$HISTORY_FILTER" "$HISTFILE" >> "$ETERNAL_HISTFILE" 2>/dev/null
+    rm -f "$HISTFILE"
 }
 trap historymerge EXIT
+# Bash does not run the EXIT trap when it is killed by a signal, so closing a
+# terminal (SIGHUP) used to leave the session file behind forever. Convert the
+# common terminating signals into a normal `exit` so historymerge runs once.
+trap 'exit 129' HUP
+trap 'exit 143' TERM
+
+# Safety net: a shell that dies without its EXIT trap (kill -9, crash) still
+# leaves its session file behind. Once a day, merge and remove orphans older
+# than a day. This runs in the background so it never delays the prompt; active
+# shells keep their file's mtime fresh via `history -a` and are skipped.
+_sweep_stamp=~/.bash_history_sessions/.last_sweep
+_last=0
+[[ -f $_sweep_stamp ]] && _last=$(<"$_sweep_stamp")
+_last=${_last//[^0-9]/}
+_now=${EPOCHSECONDS:-0}
+if (( _now > 0 && _now - ${_last:-0} > 86400 )); then
+    printf '%s\n' "$_now" > "$_sweep_stamp"
+    (
+        find ~/.bash_history_sessions -maxdepth 1 -type f -mtime +1 -print0 2>/dev/null |
+        while IFS= read -r -d '' _f; do
+            [[ "$_f" == "$HISTFILE" ]] && continue
+            grep -v -E "$HISTORY_FILTER" "$_f" >> "$ETERNAL_HISTFILE" 2>/dev/null
+            rm -f "$_f"
+        done
+    ) >/dev/null 2>&1 &
+    disown 2>/dev/null || true
+fi
+
+# Block-aware history search on Ctrl-R: pick a command and see the lines
+# around it, so a whole block ("docker run postgres", then the follow-ups)
+# stays in view. Prefix search (Up-arrow / history-search-backward) is
+# untouched, and nothing is deduped or rewritten.
+function __hist_fzf {
+    local selected cmd tmp q="${READLINE_LINE:0:${READLINE_POINT:-0}}"
+    tmp=$(mktemp "${TMPDIR:-/tmp}/hist.XXXXXX") || return
+    # Search the in-memory history (eternal history read at startup + this
+    # session), commands only. `{n}` is fzf's zero-based line index — always a
+    # plain integer — so the preview never has to parse fields out of a line.
+    history | awk '{sub(/^ *[0-9]+ +/, ""); print}' > "$tmp"
+
+    # Ctrl-S toggles sorting. Track it ourselves so the status line can show
+    # "sort: relevance" / "sort: newest first" instead of fzf's +S/-S.
+    rm -f "$tmp.sortstate"
+    cat > "$tmp.sorttoggle" <<EOF
+if [ -e "$tmp.sortstate" ]; then rm -f "$tmp.sortstate"; else : > "$tmp.sortstate"; fi
+EOF
+
+    selected=$(
+        fzf --tac --scheme=history --tiebreak=index --query="$q" \
+            --height=80% --reverse --border \
+            --color=bg+:#374145,fg+:#d3c6aa,hl:#dbbc7f,hl+:#e69875,pointer:#a7c080,marker:#a7c080,info:#859289,header:#9da9a0,border:#414b50,prompt:#a7c080 \
+            --header='Enter: select · Esc: cancel · Ctrl-S: sort · Ctrl-/: preview' \
+            --bind "ctrl-s:execute-silent(bash $tmp.sorttoggle)+toggle-sort" \
+            --bind 'start:hide-header' \
+            --bind 'f1:toggle-header' \
+            --bind 'ctrl-/:toggle-preview' \
+            --info-command "info=\${FZF_INFO:-}; base=\${info%[+-]S}; base=\${base% }; if [ -e \"$tmp.sortstate\" ]; then mode='newest first'; else mode='relevance'; fi; if [ -n \"\$base\" ]; then printf '%s · sort: %s · F1: help' \"\$base\" \"\$mode\"; else printf 'sort: %s · F1: help' \"\$mode\"; fi" \
+            --preview "i=\$(({n}+1)); a=\$((i-10)); [ \$a -lt 1 ] && a=1; b=\$((i+10)); rel=\$((i-a+1)); sed -n \"\${a},\${b}p\" \"$tmp\" | if command -v bat >/dev/null 2>&1; then bat --style=plain --color=always --language=bash --paging=never --highlight-line \"\$rel\"; else cat; fi" \
+            --preview-window='down:60%:wrap' < "$tmp"
+    ) || { rm -f "$tmp" "$tmp".*; return; }
+    rm -f "$tmp" "$tmp".*
+    cmd=$selected
+    READLINE_LINE=$cmd
+    READLINE_POINT=${#cmd}
+}
+
+if [[ $- == *i* ]] && command -v fzf >/dev/null 2>&1; then
+    bind -x '"\C-r": __hist_fzf'
+fi
 
 # Force prompt to write history after every command.
 # http://superuser.com/questions/20900/bash-history-loss
@@ -138,7 +230,6 @@ PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
 
 # PS1/PROMPT_COMMAND related config
-PS1='[\u@\h \w]\n$(__git_ps1 "(%s)")\\$ '
 
 
 function list_colors_codes {
@@ -215,12 +306,9 @@ C_RES="${C_PRE}0${C_SUF}"
 
 [[ "$EUID" -ne 0 ]] && PROMPT_COLOR=$C_GREY || PROMPT_COLOR=$C_RED
 
-PROMPT_USERHOST="\u@\h"
-PROMPT_DIRECTORY="\w"
-
-PS1="${C_PRE}"'${PROMPT_COLOR}'"${C_SUF}"'[${PROMPT_USERHOST@P}'"${C_RES}"
+PS1="${C_PRE}"'${PROMPT_COLOR}'"${C_SUF}"'[\u@\h'"${C_RES}"
 PS1+=' '
-PS1+="${C_PRE}"'${PROMPT_DIR_COLOR:-${PROMPT_COLOR}}'"${C_SUF}"'${PROMPT_DIRECTORY@P}]'"${C_RES}"
+PS1+="${C_PRE}"'${PROMPT_DIR_COLOR:-${PROMPT_COLOR}}'"${C_SUF}"'\w]'"${C_RES}"
 PS1+='\n'
 PS1+='$(__git_ps1_colorized)\$ '
 

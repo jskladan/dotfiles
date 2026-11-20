@@ -22,7 +22,9 @@ set number
 
 set ffs=unix,dos,mac " Try recognizing dos, unix, and mac line endings.
 set fileencodings=utf-8,cp1251,default,latin1 " try encodings in this order while reading file
-autocmd BufWritePre * :%s/\s\+$//e " Delete trailing whitespaces on file write
+" Delete trailing whitespaces on write, except where they are significant
+" (Markdown hard line breaks, reStructuredText, plain text).
+autocmd BufWritePre * if &filetype !~# '^\%(markdown\|rst\|text\)' | silent! %s/\s\+$//e | endif
 
 " Remaps
 imap <Insert> <Nop> " Disable replace mode

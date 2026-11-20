@@ -25,4 +25,4 @@ Some of the LSP servers need npm to install/run:
 brew install npm
 `
 
-Packer (plugin manager) should be auto-bootstrapped. If not, install according to: https://github.com/wbthomason/packer.nvim#quickstart
+lazy.nvim (plugin manager) is auto-bootstrapped by init.lua. If needed, see: https://github.com/folke/lazy.nvim
