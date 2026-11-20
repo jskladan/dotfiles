@@ -78,12 +78,22 @@ case ":$PATH:" in
     *) export PATH="$PATH:${GOPATH:-$HOME/go}/bin" ;;
 esac
 
-# Git
-source ~/.bash_completion.d/git
-source ~/.bash_completion.d/git_prompt
-export GIT_PS1_SHOWDIRTYSTATE=true
-export GIT_PS1_SHOWSTASHSTATE=true
-export GIT_PS1_SHOWUNTRACKEDFILES=true
+# Git completion: use the completion shipped with the installed git
+# (version-matched) instead of vendoring a copy that goes stale. On Linux,
+# bash-completion may already provide one; this is a harmless fallback.
+for _git_completion in \
+    /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash \
+    /Applications/Xcode.app/Contents/Developer/usr/share/git-core/git-completion.bash \
+    /opt/homebrew/share/git-core/contrib/completion/git-completion.bash \
+    /usr/local/share/git-core/contrib/completion/git-completion.bash \
+    /usr/share/git-core/contrib/completion/git-completion.bash \
+    /usr/share/git/completion/git-completion.bash; do
+    if [[ -r $_git_completion ]]; then
+        . "$_git_completion"
+        break
+    fi
+done
+unset _git_completion
 
 function pagurepr {
     remote="${2:-origin}"
@@ -272,9 +282,8 @@ function __git_ps1_colorized {
     done <<< "$out"
 
     [ -z "$head" ] && return
-    # Detached HEAD needs describe/tag logic — fall back to the original.
     if [ "$head" = "(detached)" ]; then
-        val=$(__git_ps1 "%s")
+        val="${oid:0:7}..."
     else
         [[ "$oid" = "(initial)" && -z "$i" ]] && i='#'
         local flags="${w}${i}"

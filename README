@@ -48,7 +48,8 @@ Notes:
 - `bat` is optional: without it the history preview is plain text.
 - `bash-completion` is sourced by `dotfiles/bashrc` (Homebrew's
   `profile.d/bash_completion.sh` on macOS, `/usr/share/bash-completion/bash_completion`
-  on Fedora). The vendored git completions also work without it.
+  on Fedora). Git completion is loaded from the **installed git** (so it stays
+  version-matched) instead of being vendored here.
 - Python: **pyenv is not initialized** by this setup (its init rehashed on every
   shell); use [`uv`](https://github.com/astral-sh/uv).
 
@@ -63,9 +64,8 @@ exec bash -l          # or open a new terminal
 
 `setup_bash.sh` symlinks:
 
-- `dotfiles/*`          → `~/.<name>` (bashrc, bash_profile, gitconfig, inputrc, vimrc)
-- `bash_completion.d/*` → `~/.bash_completion.d/`
-- `config/<dir>`        → `~/.config/<dir>` (nvim, zim, bat)
+- `dotfiles/*`   → `~/.<name>` (bashrc, bash_profile, gitconfig, inputrc, vimrc)
+- `config/<dir>` → `~/.config/<dir>` (nvim, zim, bat)
 
 Existing files are backed up under `backup/`. The script warns about missing
 tools and rebuilds bat's theme cache so `everforest-dark` is available.
@@ -91,6 +91,8 @@ on first start). Some LSP servers need npm (installed above).
 - **Fast startup.** pyenv is not initialized; thefuck loads lazily, Homebrew is
   configured without spawning `brew`, and the git prompt uses one `git status`
   instead of `__git_ps1`'s ~8.
+- **Completion.** bash-completion plus git's own completion (version-matched),
+  with readline set to case-insensitive, list-on-first-Tab, and colored stats.
 - **Eternal history.** Noise (`set …`, `cd`, `ls`, …) is filtered, orphaned
   session files are swept once a day in the background, and command blocks stay
   in order.

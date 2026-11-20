@@ -13,7 +13,7 @@ set -u
 ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 STAMP=$(date +%s)
 BACKUP="$ROOT/backup"
-mkdir -p "$BACKUP/dotfiles" "$BACKUP/bash_completion" "$BACKUP/config"
+mkdir -p "$BACKUP/dotfiles" "$BACKUP/config"
 
 backup_file() {
     # backup_file SRC DEST_DIR NAME
@@ -66,7 +66,6 @@ link_config_dirs() {
 }
 
 link_files "$ROOT/dotfiles" "$HOME" "." "$BACKUP/dotfiles"
-link_files "$ROOT/bash_completion.d" "$HOME/.bash_completion.d" "" "$BACKUP/bash_completion"
 link_config_dirs
 
 if (( BASH_VERSINFO[0] < 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] < 2) )); then

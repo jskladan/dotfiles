@@ -1,6 +1,11 @@
 # Respect default shortcuts.
 $include /etc/inputrc
 
+# Completion niceties
+set completion-ignore-case on
+set show-all-if-ambiguous on
+set colored-stats on
+
 ## arrow up
 "\e[A":history-search-backward
 ## arrow down
