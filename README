@@ -1,28 +1,98 @@
-= Latest bash on MacOS
+# dotfiles
 
-`
+Bash, git, vim/nvim, bat and terminal setup for **macOS** and **Fedora/RHEL**.
+
+## Bootstrap
+
+```bash
+git clone git@github.com:jskladan/dotfiles.git
+cd dotfiles
+./setup_bash.sh
+exec bash -l          # or open a new terminal
+```
+
+`setup_bash.sh` symlinks:
+
+- `dotfiles/*`      → `~/.<name>` (bashrc, bash_profile, gitconfig, inputrc, vimrc)
+- `bash_completion.d/*` → `~/.bash_completion.d/`
+- `config/<dir>`    → `~/.config/<dir>` (nvim, zim, bat)
+
+Existing files are backed up under `backup/`. If `bat` is installed, the script
+also rebuilds bat's theme cache so the `everforest-dark` theme is picked up.
+
+### Secrets
+
+The bottom of `dotfiles/bashrc` sources these from `$HOME`:
+
+```bash
+~/gemini_api_key.sh  ~/redhat_claude_code.sh
+~/jira_api_key.sh    ~/glab_api_key.sh
+```
+
+Create them with your own exports (mode `600`), or delete those `source` lines.
+
+## macOS
+
+The system bash is 3.2; this config needs **bash >= 5.2**.
+
+```bash
 brew install bash
-sudo sh -c 'echo /opt/homebrew/bin/bash >> /etc/shells'
+echo /opt/homebrew/bin/bash | sudo tee -a /etc/shells
 chsh -s /opt/homebrew/bin/bash
-`
+```
 
-Scripts need to use "#!/usr/bin/env bash" in order to use the brew-bash, not "#!/bin/bash"
+Use `#!/usr/bin/env bash` in scripts (not `#!/bin/bash`).
 
-= Neovim
+```bash
+brew install git fzf bat ripgrep neovim node
+```
 
-`
-git submodule update --init
-`
+iTerm2 profiles, colors and fonts are in `iTerm/`.
 
-`
-brew install nvim
-brew install ripgrep
-`
+## Fedora / RHEL
 
-Some of the LSP servers need npm to install/run:
+bash 5 is already installed.
 
-`
-brew install npm
-`
+```bash
+sudo dnf install git fzf bat ripgrep neovim nodejs npm
+# RHEL: enable EPEL first if a package is missing.
+```
 
-lazy.nvim (plugin manager) is auto-bootstrapped by init.lua. If needed, see: https://github.com/folke/lazy.nvim
+Use a current **fzf** — the distro package can be too old for `--info-command`
+and `--scheme=history`. If the history widget misbehaves, install a release
+from <https://github.com/junegunn/fzf/releases>.
+
+`bat` is optional: without it the history preview is plain text.
+
+## Neovim
+
+The config lives in `config/nvim` (kickstart.nvim + lazy.nvim, auto-bootstrapped
+on first start). Some LSP servers need npm:
+
+```bash
+brew install npm                # macOS
+sudo dnf install nodejs npm     # Fedora/RHEL
+```
+
+## What you get
+
+- **Fast startup.** pyenv is intentionally not initialized (its init ran a
+  filesystem rehash every shell); use [`uv`](https://github.com/astral-sh/uv)
+  for Python. thefuck loads lazily, Homebrew is set up without spawning `brew`,
+  and the git prompt uses one `git status` instead of `__git_ps1`'s ~8.
+- **Eternal history.** Noise is filtered (`set …`, `cd`, `ls`, …), orphaned
+  session files are swept once a day in the background, and history blocks stay
+  in order (duplicates are kept on purpose).
+- **Ctrl-R history search** (fzf) with a block preview:
+
+  | Key | Action |
+  |---|---|
+  | `Enter` | select the command (inserted at the prompt, not run) |
+  | `Esc` | cancel |
+  | `Ctrl-S` | toggle sort; status shows *relevance* / *newest first* |
+  | `Ctrl-/` | toggle preview |
+  | `F1` | toggle the key-hint header |
+
+  The preview uses `bat` with the `everforest-dark` theme (`config/bat`), which
+  matches the terminal/nvim palette.
+- `stty -ixon` is set so `Ctrl-S` works instead of freezing the terminal.

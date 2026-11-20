@@ -1,82 +1,77 @@
-#!/bin/bash
-############################
-# This script creates symlinks from the home directory to every file in ./dotfiles while keeping old backups in ./dotfiles_backup
-############################
+#!/usr/bin/env bash
+#
+# Symlink dotfiles into $HOME and back up anything that gets replaced.
+#
+#   dotfiles/*            -> ~/.<name>
+#   bash_completion.d/*   -> ~/.bash_completion.d/
+#   config/<dir>          -> ~/.config/<dir>
+#
+# Safe to re-run: entries already pointing at this repo are left alone.
+#
+set -u
 
-# diff -r /media/ntfsdrive/data /media/ext4drive/data
+ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+STAMP=$(date +%s)
+BACKUP="$ROOT/backup"
+mkdir -p "$BACKUP/dotfiles" "$BACKUP/bash_completion" "$BACKUP/config"
 
-timestamp=`date +%s`
-mkdir -p ./backup
+backup_file() {
+    # backup_file SRC DEST_DIR NAME
+    local src=$1 dest_dir=$2 name=$3
+    rm -f "$dest_dir/$name"
+    cp -RpL "$src" "$dest_dir/${name}.${STAMP}"
+    ln -s "$dest_dir/${name}.${STAMP}" "$dest_dir/$name"
+    echo "Backed up $src -> $dest_dir/${name}.${STAMP}"
+}
 
-dir=`realpath ./dotfiles`                    # dotfiles directory
-bkp_dir=`realpath ./backup`             # old dotfiles backup directory
-bkp_dotfiles="${bkp_dir}/dotfiles"
-mkdir -p "${bkp_dotfiles}"
+link_files() {
+    # link_files SRC_DIR DEST_DIR PREFIX BACKUP_DIR
+    local src_dir=$1 dest_dir=$2 prefix=$3 backup_dir=$4 src name dest
+    mkdir -p "$dest_dir"
+    for src in "$src_dir"/*; do
+        [ -e "$src" ] || continue
+        name=$(basename "$src")
+        dest="$dest_dir/${prefix}${name}"
 
-file_list=`ls ${dir}`
-for fname in $file_list; do
-    if [ -f ~/.${fname} ]; then
-        # Check if backup file already exists, and "logrotate" it, if it has a different content than the new dotfile
-        if [ -f ${bkp_dotfiles}/${fname} ]; then
-            # backup is the same as new version
-            if cmp "${dir}/${fname}" "${bkp_dotfiles}/${fname}"; then
-                continue
-            fi
-            rm -f ${bkp_dotfiles}/${fname}
-        fi
-        echo "Backed up ./${fname} to ${bkp_dotfiles}/${fname}"
-        cp -L ~/.${fname} ${bkp_dotfiles}/${fname}_${timestamp} && ln -s ${bkp_dotfiles}/${fname}_${timestamp} ${bkp_dotfiles}/${fname} && rm ~/.${fname}
-    fi
-
-    ln -s ${dir}/${fname} ~/.${fname}
-done
-
-
-# Bash completion
-dir=`realpath ./bash_completion.d`
-mkdir -p ~/.bash_completion.d
-bkp_completion="${bkp_dir}/bash_completion"
-mkdir -p "${bkp_completion}"
-
-file_list=`ls ${dir}`
-for fname in $file_list; do
-    if [ -f ~/.bash_completion.d/${fname} ]; then
-        # Check if backup file already exists, and "logrotate" it, if it has a different content than the new dotfile
-        if [ -f ${bkp_completion}/${fname} ]; then
-            # backup is the same as new version
-            if cmp "${dir}/${fname}" "${bkp_completion}/${fname}"; then
-                continue
-            fi
-            rm -f ${bkp_completion}/${fname}
-        fi
-
-        echo "Backed up ~/.bash_completion.d/${fname} to ${bkp_completion}/${fname}"
-        cp -L ~/.bash_completion.d/${fname} ${bkp_completion}/${fname}_${timestamp} && ln -s ${bkp_completion}/${fname}_${timestamp} ${bkp_completion}/${fname} && rm ~/.bash_completion.d/${fname}
-    fi
-    ln -s ${dir}/${fname} ~/.bash_completion.d/${fname}
-done
-
-# .config
-dir=`realpath ./config`
-bkp_config="${bkp_dir}/config"
-mkdir -p "${bkp_config}"
-
-dir_list=`ls ${dir}`
-for dirname in ${dir_list}; do
-    if [ ! -d ${dir}/${dirname} ]; then
-        echo "Skipping ${dir}/${dirname} - this code only works for directories"
-        continue
-    fi
-
-    if [ -e "$HOME/.config/${dirname}" ]; then
-        # Already a symlink to our copy — nothing to do.
-        if [ "$HOME/.config/${dirname}" -ef "${dir}/${dirname}" ]; then
+        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
             continue
         fi
-        rm -f "${bkp_config}/${dirname}"
+        if [ -e "$dest" ] || [ -L "$dest" ]; then
+            backup_file "$dest" "$backup_dir" "$name"
+            rm -rf "$dest"
+        fi
+        ln -s "$src" "$dest"
+        echo "Linked $dest -> $src"
+    done
+}
 
-        echo "Backed up ~/.config/${dirname} to ${bkp_config}/${dirname}"
-        cp -RL "$HOME/.config/${dirname}" "${bkp_config}/${dirname}_${timestamp}" && ln -s "${bkp_config}/${dirname}_${timestamp}" "${bkp_config}/${dirname}" && rm -rI "$HOME/.config/${dirname}"
-    fi
-    ln -s "${dir}/${dirname}" "$HOME/.config/${dirname}"
-done
+link_config_dirs() {
+    local src_dir="$ROOT/config" src name dest
+    mkdir -p "$HOME/.config"
+    for src in "$src_dir"/*; do
+        [ -d "$src" ] || continue
+        name=$(basename "$src")
+        dest="$HOME/.config/$name"
+
+        if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+            continue
+        fi
+        if [ -e "$dest" ] || [ -L "$dest" ]; then
+            backup_file "$dest" "$BACKUP/config" "$name"
+            rm -rI "$dest"
+        fi
+        ln -s "$src" "$dest"
+        echo "Linked $dest -> $src"
+    done
+}
+
+link_files "$ROOT/dotfiles" "$HOME" "." "$BACKUP/dotfiles"
+link_files "$ROOT/bash_completion.d" "$HOME/.bash_completion.d" "" "$BACKUP/bash_completion"
+link_config_dirs
+
+if command -v bat >/dev/null 2>&1; then
+    echo "Building bat theme cache..."
+    bat cache --build
+fi
+
+echo "Done. Open a new terminal (or run: exec bash -l)."
